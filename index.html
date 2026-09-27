@@ -1,0 +1,702 @@
+<title>4Brain in neon</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Oxanium:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+  /* Un solo mundo visual, a proposito: pantalla de neon sobre negro (no sigue el tema claro/oscuro del visor). */
+  :root{
+    color-scheme: dark;
+    --negro:#04030a; --panel:#0a0716; --panel2:#110c22; --borde:#231b44; --linea:#2c2356;
+    --violeta:#a57cff; --violeta-2:#6c4bd6; --iv:#2be8ff; --oral:#ffb23e; --elim:#ff5c72;
+    --venosa:#6a5cff; --arterial:#ff3d8e;
+    --texto:#ede8ff; --texto-2:#aaa0cc; --texto-3:#6f6591;
+    --display:'Oxanium', 'Segoe UI', system-ui, sans-serif; --cuerpo:'IBM Plex Sans', 'Segoe UI', system-ui, sans-serif; --mono:'IBM Plex Mono', ui-monospace, Consolas, monospace;
+  }
+  html, body{ background:var(--negro); }
+  body{ color:var(--texto); font-family:var(--cuerpo); font-size:14px; line-height:1.5; }
+  .envoltura{ max-width:1480px; margin:0 auto; padding-inline:clamp(16px, 2.4vw, 32px); padding-block:20px 40px; }
+  .cabeza{ display:flex; flex-wrap:wrap; align-items:flex-end; justify-content:space-between; gap:12px 28px; margin-bottom:14px; }
+  .ceja{ font-family:var(--mono); font-size:11px; letter-spacing:.16em; text-transform:uppercase; color:var(--violeta); }
+  h1{ font-family:var(--display); font-weight:700; font-size:clamp(26px, 3.4vw, 40px); line-height:1.05; margin:4px 0 6px; letter-spacing:.01em; text-wrap:balance;
+      text-shadow:0 0 18px rgba(165,124,255,.55), 0 0 2px rgba(255,255,255,.6); }
+  h1 .t-iv{ color:var(--iv); text-shadow:0 0 16px rgba(43,232,255,.7); } h1 .t-or{ color:var(--oral); text-shadow:0 0 16px rgba(255,178,62,.7); }
+  .lema{ margin:0; color:var(--texto-2); max-width:70ch; }
+  .sello{ font-family:var(--mono); font-size:11.5px; color:var(--texto-2); border:1px solid var(--borde); border-radius:999px; padding:6px 12px; background:var(--panel); white-space:nowrap; }
+  .sello b{ color:#7dffc4; font-weight:500; }
+
+  /* deck de mando */
+  .fijo{ margin-bottom:14px; }
+  .deck{ display:flex; flex-direction:column; gap:10px; padding:12px; border:1px solid var(--borde); border-radius:16px; background:linear-gradient(180deg, var(--panel2), var(--panel)); }
+  .deck .fila{ display:flex; flex-wrap:wrap; align-items:center; gap:8px 14px; }
+  .grupo{ display:flex; align-items:center; gap:6px; flex-wrap:wrap; }
+  .grupo > .rot{ font-family:var(--mono); font-size:10.5px; letter-spacing:.12em; text-transform:uppercase; color:var(--texto-3); margin-right:2px; }
+  button, select, input{ font:inherit; color:inherit; }
+  .bt{ background:#151030; border:1px solid var(--linea); color:var(--texto); border-radius:10px; padding:7px 12px; cursor:pointer; font-family:var(--display); font-weight:600; letter-spacing:.03em; transition:border-color .15s, box-shadow .15s, background .15s; }
+  .bt:hover{ border-color:var(--violeta-2); }
+  .bt:focus-visible, select:focus-visible, input:focus-visible, summary:focus-visible, .pestanas button:focus-visible{ outline:2px solid var(--violeta); outline-offset:2px; }
+  .bt.on{ border-color:var(--violeta); box-shadow:0 0 0 1px var(--violeta) inset, 0 0 14px rgba(165,124,255,.35); background:#1c1340; }
+  .bt.grande{ min-width:108px; }
+  .bt.tr-iv.on{ border-color:var(--iv); box-shadow:0 0 0 1px var(--iv) inset, 0 0 14px rgba(43,232,255,.35); color:#dffbff; }
+  .bt.tr-or.on{ border-color:var(--oral); box-shadow:0 0 0 1px var(--oral) inset, 0 0 14px rgba(255,178,62,.35); color:#fff1dc; }
+  .bt.dar-iv{ border-color:rgba(43,232,255,.55); color:#dffbff; } .bt.dar-iv:hover{ box-shadow:0 0 14px rgba(43,232,255,.4); }
+  .bt.dar-or{ border-color:rgba(255,178,62,.55); color:#fff1dc; } .bt.dar-or:hover{ box-shadow:0 0 14px rgba(255,178,62,.4); }
+  .bt .punto{ display:inline-block; width:8px; height:8px; border-radius:50%; margin-right:7px; vertical-align:1px; }
+  .cantidad{ display:inline-flex; align-items:center; gap:5px; font-family:var(--mono); font-size:12px; color:var(--texto-2); }
+  .cantidad input{ width:84px; background:#0f0b22; border:1px solid var(--linea); border-radius:9px; padding:6px 8px; color:var(--texto); font-family:var(--display); font-size:15px; font-weight:600; text-align:right; }
+  .reloj{ margin-left:auto; font-family:var(--display); font-weight:600; font-size:20px; color:var(--texto); font-variant-numeric:tabular-nums; text-shadow:0 0 12px rgba(165,124,255,.5); white-space:nowrap; }
+  .reloj small{ font-family:var(--mono); font-size:11px; color:var(--texto-3); margin-left:6px; }
+  .proximas{ margin-left:auto; font-family:var(--mono); font-size:11.5px; color:var(--texto-2); display:flex; flex-wrap:wrap; gap:2px 14px; }
+  details.opciones{ border-top:1px solid var(--borde); padding-top:8px; }
+  details.opciones summary{ cursor:pointer; list-style:none; display:flex; justify-content:space-between; gap:10px; font-family:var(--mono); font-size:12px; color:var(--texto-2); border-radius:8px; }
+  details.opciones summary::-webkit-details-marker{ display:none; }
+  details.opciones summary .abre{ color:var(--violeta); white-space:nowrap; } details.opciones summary .abre::after{ content:" ▾"; } details.opciones[open] summary .abre::after{ content:" ▴"; }
+  details.opciones .dentro{ display:flex; flex-direction:column; gap:12px; margin-top:10px; }
+  form.pauta{ display:grid; grid-template-columns:repeat(4, minmax(0, 1fr)); gap:10px 12px; align-items:end; }
+  .campo{ display:flex; flex-direction:column; gap:4px; font-family:var(--mono); font-size:10.5px; letter-spacing:.08em; text-transform:uppercase; color:var(--texto-3); }
+  .campo input, .campo select{ background:#0f0b22; border:1px solid var(--linea); border-radius:9px; padding:8px 9px; color:var(--texto); font-family:var(--display); font-size:15px; font-weight:600; letter-spacing:0; text-transform:none; width:100%; }
+
+  /* pestanas: en pantalla ancha solo alternan el esquema (PBPK / Cerebro); las graficas quedan siempre a la vista */
+  .pestanas{ display:flex; gap:6px; margin-top:10px; }
+  .pestanas button{ background:#100c24; border:1px solid var(--linea); border-radius:10px; padding:8px 16px; font-family:var(--display); font-weight:600; font-size:14px; letter-spacing:.03em; color:var(--texto-2); cursor:pointer; }
+  .pestanas button[aria-selected="true"]{ color:var(--texto); border-color:var(--violeta); box-shadow:0 0 0 1px var(--violeta) inset, 0 0 14px rgba(165,124,255,.35); background:#1a1240; }
+  .pestanas .solo-estrecho{ display:none; }
+
+  /* escenario */
+  .escenario{ display:grid; grid-template-columns:minmax(0, 1.42fr) minmax(0, 1fr); gap:14px; align-items:start; }
+  .caja{ border:1px solid var(--borde); border-radius:16px; background:var(--panel); padding:10px; }
+  .caja h2{ font-family:var(--display); font-weight:600; font-size:13px; letter-spacing:.14em; text-transform:uppercase; color:var(--texto-2); margin:2px 4px 8px; display:flex; justify-content:space-between; gap:10px; }
+  .caja h2 span{ font-family:var(--mono); font-size:10.5px; letter-spacing:.06em; text-transform:none; color:var(--texto-3); font-weight:400; }
+  .panel.esquema{ display:none; } .panel.esquema.activa{ display:block; }
+  .desliza{ overflow-x:auto; border-radius:12px; }
+  canvas.vista{ display:block; width:100%; aspect-ratio:1200 / 700; cursor:crosshair; border-radius:12px; background:#030208; }
+  .columna{ display:flex; flex-direction:column; gap:14px; min-width:0; }
+  .grafica{ display:block; width:100%; aspect-ratio:16 / 7.2; border-radius:10px; background:#030208; }
+  .chips{ display:flex; flex-wrap:wrap; gap:8px; margin:8px 2px 2px; }
+  .chip{ border:1px solid var(--borde); border-left:3px solid var(--c); border-radius:10px; padding:6px 10px; font-family:var(--mono); font-size:11.5px; color:var(--texto-2); background:#0c0920; box-shadow:-4px 0 14px -8px var(--c); }
+  .chip .n{ font-family:var(--display); font-weight:600; color:var(--c); margin-right:4px; } .chip b{ font-family:var(--display); font-size:16px; color:var(--texto); font-weight:600; }
+  .chip.apagado{ opacity:.5; } .chip .sep{ color:var(--texto-3); margin:0 3px; }
+  .subtitulo{ font-family:var(--display); font-weight:600; font-size:13px; letter-spacing:.14em; text-transform:uppercase; color:var(--texto-2); margin:16px 4px 8px; display:flex; justify-content:space-between; gap:10px; }
+  .subtitulo span{ font-family:var(--mono); font-size:10.5px; letter-spacing:.06em; text-transform:none; color:var(--texto-3); font-weight:400; }
+  .reparto{ display:flex; flex-direction:column; gap:10px; }
+  .fila-r{ display:grid; grid-template-columns:58px minmax(0, 1fr); gap:10px; align-items:center; }
+  .fila-r .n{ font-family:var(--display); font-weight:600; font-size:12px; color:var(--c); }
+  .barra-r{ display:flex; height:14px; border-radius:7px; overflow:hidden; background:#140f2a; box-shadow:0 0 0 1px #1d1640 inset; }
+  .barra-r i{ display:block; height:100%; }
+  .leyenda-r{ display:flex; flex-wrap:wrap; gap:4px 14px; font-family:var(--mono); font-size:11px; color:var(--texto-2); }
+  .leyenda-r span{ display:inline-flex; align-items:center; gap:6px; }
+  .leyenda-r i{ width:10px; height:10px; border-radius:3px; display:inline-block; }
+  .compartimento{ font-size:13px; color:var(--texto-2); min-height:44px; }
+  .compartimento b{ color:var(--texto); font-family:var(--display); font-weight:600; font-size:15px; }
+  .compartimento .dos{ display:grid; grid-template-columns:1fr 1fr; gap:6px 14px; margin-top:6px; font-family:var(--mono); font-size:12px; }
+  .tabla-cerebro{ overflow-x:auto; margin-top:8px; }
+  .tabla-cerebro table{ width:100%; border-collapse:collapse; font-family:var(--mono); font-size:12px; font-variant-numeric:tabular-nums; }
+  .tabla-cerebro th, .tabla-cerebro td{ padding:6px 8px; border-bottom:1px solid var(--borde); text-align:right; white-space:nowrap; }
+  .tabla-cerebro th{ color:var(--texto-3); font-weight:400; font-size:10.5px; letter-spacing:.06em; text-transform:uppercase; }
+  .tabla-cerebro td:first-child, .tabla-cerebro th:first-child{ text-align:left; }
+  .claves{ display:flex; flex-wrap:wrap; gap:6px 16px; font-family:var(--mono); font-size:11px; color:var(--texto-2); margin:6px 4px 2px; }
+  .claves span{ display:inline-flex; align-items:center; gap:6px; }
+  .claves i{ width:16px; height:3px; border-radius:2px; display:inline-block; }
+  .notas-caja{ margin-top:14px; }
+  .notas{ color:var(--texto-2); font-size:13px; }
+  .notas p{ margin:0 0 8px; max-width:78ch; }
+  .notas b{ color:var(--texto); font-weight:600; }
+  .aviso{ font-family:var(--mono); font-size:11px; color:var(--texto-3); margin-top:10px; }
+  .toast{ position:fixed; left:50%; bottom:calc(18px + env(safe-area-inset-bottom, 0px)); transform:translateX(-50%) translateY(20px); opacity:0; transition:all .25s; background:#140f2c; border:1px solid var(--violeta-2); color:var(--texto); padding:9px 14px; border-radius:10px; font-family:var(--mono); font-size:12px; pointer-events:none; box-shadow:0 0 20px rgba(165,124,255,.3); z-index:10; }
+  .toast.ver{ opacity:1; transform:translateX(-50%) translateY(0); }
+  pre#salida-prueba{ display:none; }
+
+  @media (max-width:1060px){
+    .fijo{ position:sticky; top:env(safe-area-inset-top, 0px); z-index:6; background:var(--negro); padding-block:6px 8px; margin-inline:-6px; padding-inline:6px; }
+    .escenario{ grid-template-columns:minmax(0, 1fr); }
+    .pestanas{ display:grid; grid-template-columns:repeat(4, 1fr); } .pestanas button{ padding:9px 4px; }
+    .pestanas .solo-estrecho{ display:block; }
+    .panel{ display:none; } .panel.activa{ display:block; }
+  }
+  @media (max-width:700px){
+    .deck{ padding:9px; gap:8px; border-radius:13px; }
+    .grupo > .rot{ display:none; }
+    .bt{ padding:6px 9px; font-size:13px; } .bt.grande{ min-width:0; }
+    .deck .fila-1{ gap:6px; } .reloj{ order:-1; width:100%; margin-left:0; font-size:17px; display:flex; justify-content:space-between; align-items:baseline; }
+    .proximas{ margin-left:0; width:100%; font-size:10.5px; }
+    .cantidad input{ width:72px; font-size:14px; }
+    form.pauta{ grid-template-columns:1fr 1fr; }
+    .grafica{ aspect-ratio:4 / 3.3; }
+    .caja{ padding:6px; } .caja h2{ font-size:12px; margin:2px 4px 6px; } .caja h2 span{ display:none; }
+    h1{ font-size:24px; } .lema{ font-size:13px; } .sello{ white-space:normal; }
+    .claves{ font-size:10.5px; } .pestanas button{ font-size:13px; }
+  }
+  @media (prefers-reduced-motion: reduce){ .bt, .toast{ transition:none; } }
+</style>
+
+<div class="envoltura">
+  <header class="cabeza">
+    <div>
+      <div class="ceja">4Brain · Gaohua et al. 2016 · paracetamol · typical 73 kg subject</div>
+      <h1>Paracetamol every 8 hours, <span class="t-iv">intravenous</span> and <span class="t-or">oral</span></h1>
+      <p class="lema">Real-time simulation of the whole-body PBPK model with the four-compartment brain. Each light is drug travelling along an arrow of the model, and its density follows the flow in mg/h. The charts draw plasma and spinal CSF against each dose.</p>
+    </div>
+    <div class="sello" id="sello">checking against rxode2…</div>
+  </header>
+
+  <div class="fijo">
+    <div class="deck" role="region" aria-label="Simulation controls">
+      <div class="fila fila-1">
+        <div class="grupo">
+          <button class="bt grande on" id="btPlay" aria-pressed="true">❚❚ Pause</button>
+          <button class="bt" id="btReinicio" title="Back to t = 0 with the current regimen">⟲ Restart</button>
+        </div>
+        <div class="grupo" role="group" aria-label="Speed">
+          <span class="rot">Speed</span>
+          <button class="bt vel" data-v="1">1 h/s</button><button class="bt vel on" data-v="3">3 h/s</button><button class="bt vel" data-v="8">8 h/s</button>
+        </div>
+        <div class="reloj" aria-live="off"><span id="reloj">0 h 00 min</span><small id="dia">day 1</small></div>
+      </div>
+      <div class="fila fila-2">
+        <div class="grupo" role="group" aria-label="Give a dose now">
+          <span class="rot">Give now</span>
+          <label class="cantidad" for="fExtra"><input id="fExtra" type="number" inputmode="numeric" min="50" max="2000" step="50" value="1000" aria-label="Amount to give, in mg"><span>mg</span></label>
+          <button class="bt dar-iv" id="extraIV">+ IV</button><button class="bt dar-or" id="extraOR">+ Oral</button>
+        </div>
+        <div class="proximas" id="proximas" aria-live="off"></div>
+      </div>
+      <details class="opciones" id="opciones">
+        <summary><span id="resumenPauta">Regimen · 1000 mg every 8 h · 6 doses · IV over 15 min</span><span class="abre">regimen and options</span></summary>
+        <div class="dentro">
+          <form class="pauta" id="pauta">
+            <label class="campo" for="fDosis">Dose (mg)<input id="fDosis" type="number" inputmode="numeric" min="50" max="2000" step="50" value="1000"></label>
+            <label class="campo" for="fInt">Every<select id="fInt"><option value="4">4 h</option><option value="6">6 h</option><option value="8" selected>8 h</option><option value="12">12 h</option><option value="24">24 h</option></select></label>
+            <label class="campo" for="fN">Doses<select id="fN"></select></label>
+            <label class="campo" for="fInf">IV infusion<select id="fInf"><option value="1">bolus (1 min)</option><option value="15" selected>15 min</option><option value="30">30 min</option><option value="60">60 min</option></select></label>
+            <button class="bt" type="submit" style="grid-column:1/-1">Apply regimen and restart</button>
+          </form>
+          <div class="fila">
+            <div class="grupo" role="group" aria-label="Treatments">
+              <span class="rot">Treatments</span>
+              <button class="bt tr-iv on" id="trIV" aria-pressed="true"><span class="punto" style="background:var(--iv);box-shadow:0 0 8px var(--iv)"></span>IV</button>
+              <button class="bt tr-or on" id="trOR" aria-pressed="true"><span class="punto" style="background:var(--oral);box-shadow:0 0 8px var(--oral)"></span>Oral</button>
+            </div>
+            <div class="grupo" role="group" aria-label="Charts">
+              <span class="rot">Charts</span>
+              <button class="bt" id="btLog" aria-pressed="false">log scale</button>
+              <button class="bt" id="btSombra" aria-pressed="false">whole curve</button>
+            </div>
+          </div>
+        </div>
+      </details>
+    </div>
+    <nav class="pestanas" role="tablist" aria-label="Views">
+      <button role="tab" id="tabPBPK" data-p="pbpk" aria-selected="true" aria-controls="pPBPK">PBPK</button>
+      <button role="tab" id="tabCerebro" data-p="cerebro" aria-selected="false" aria-controls="pCerebro" tabindex="-1">Brain</button>
+      <button role="tab" id="tabPlasma" class="solo-estrecho" data-p="plasma" aria-selected="false" aria-controls="pPlasma" tabindex="-1">Plasma</button>
+      <button role="tab" id="tabLCR" class="solo-estrecho" data-p="lcr" aria-selected="false" aria-controls="pLCR" tabindex="-1">CSF</button>
+    </nav>
+  </div>
+
+  <div class="escenario">
+    <div class="columna">
+      <section class="caja panel esquema activa" data-panel="pbpk" id="pPBPK" role="tabpanel" aria-labelledby="tabPBPK">
+        <h2>PBPK · the whole body <span>tap a compartment; the brain opens its own tab</span></h2>
+        <div class="desliza"><canvas class="vista" id="lienzo" width="1200" height="700" aria-label="Animated whole-body PBPK schematic"></canvas></div>
+        <div class="claves">
+          <span><i style="background:var(--iv);box-shadow:0 0 6px var(--iv)"></i>IV · infusion into venous blood</span>
+          <span><i style="background:var(--oral);box-shadow:0 0 6px var(--oral)"></i>oral · stomach and 7 intestinal segments</span>
+          <span><i style="background:var(--elim);box-shadow:0 0 6px var(--elim)"></i>elimination</span>
+          <span>brightness: concentration (log scale) · bars below: IV and oral</span>
+        </div>
+        <div class="compartimento" id="compartimento" style="margin-top:10px"></div>
+        <div class="subtitulo">Where the dose is now <span>% of everything given so far</span></div>
+        <div class="reparto" id="reparto"></div>
+      </section>
+      <section class="caja panel esquema" data-panel="cerebro" id="pCerebro" role="tabpanel" aria-labelledby="tabCerebro">
+        <h2>Brain · the four compartments <span>barriers, CSF flows and live concentrations</span></h2>
+        <div class="desliza"><canvas class="vista" id="lienzoCerebro" width="1000" height="640" aria-label="Animated four-compartment brain schematic"></canvas></div>
+        <div class="claves">
+          <span>BBB: blood-brain barrier · blood-CSF: choroid plexus · bulk flow: interstitium to CSF</span>
+        </div>
+        <div class="tabla-cerebro" id="tablaCerebro"></div>
+      </section>
+    </div>
+    <div class="columna">
+      <section class="caja panel grafico" data-panel="plasma" id="pPlasma" role="tabpanel" aria-labelledby="tabPlasma">
+        <h2>Plasma levels <span>C<sub>p</sub> = venous blood / BP · mg/L</span></h2>
+        <canvas class="grafica" id="gPlasma" width="800" height="360"></canvas>
+        <div class="chips" id="chipsP"></div>
+      </section>
+      <section class="caja panel grafico" data-panel="lcr" id="pLCR" role="tabpanel" aria-labelledby="tabLCR">
+        <h2>Spinal CSF levels <span>what a lumbar puncture measures · mg/L</span></h2>
+        <canvas class="grafica" id="gLCR" width="800" height="360"></canvas>
+        <div class="chips" id="chipsL"></div>
+      </section>
+    </div>
+  </div>
+
+  <section class="caja notas-caja" aria-label="How it is simulated">
+    <div class="notas">
+      <p><b>How it is simulated.</b> With linear hepatic elimination, paracetamol makes the model a linear system of 30 states. The page advances minute by minute with the exact transition matrix, <span style="font-family:var(--mono)">x ← e<sup>A·Δt</sup> x + G·rate</span>, computed in R from the same equations as the toolkit. It does not approximate: on opening, it replays the reference regimen and compares it with rxode2 (the seal above).</p>
+      <p><b>What you see.</b> Each arrow releases lights at a rate that grows with the logarithm of its flow (mg/h), so cardiac output (hundreds of mg/h) and CSF circulation (hundredths) are visible at the same time. The side bars are venous blood (left, up to the lung) and arterial blood (right, distributing).</p>
+      <p class="aviso">Independent re-implementation of the 4Brain model (Gaohua et al. 2016, CC BY-NC-ND 4.0) nested in a reference whole-body physiology. It is a typical virtual subject: not a clinical regimen and not a dose recommendation. It is not the Simcyp Simulator and does not replace it.</p>
+    </div>
+  </section>
+  <pre id="salida-prueba"></pre>
+</div>
+<div class="toast" id="toast" role="status"></div>
+
+<script>
+window.MODELO_4BRAIN = /*__MODELO__*/{"fuente":"Gaohua et al. 2016 (4Brain), reconstructed in farmacometria-libre R/17; paracetamol, typical 73 kg subject","generado":"2026-09-24 16:52","estados":["adiposo","hueso","corazon","rinon","musculo","piel","intestino","bazo","pancreas","higado","pulmon","resto","art","ven","BB","BM","LCRc","LCRe","estomago","id1","id2","id3","id4","id5","id6","id7","colon","elim_hepatica","elim_renal","elim_cerebral"],"h":0.0166666666666667,"M":[[0.935791834615262,0.000677745935048014,0.0108966911497312,0.0262461891435906,0.000657323301478289,0.00164066012528536,0.00247666096571654,0.0035590528050552,0.00151990989888195,0.0109488201361765,0.0522731825052796,0.00186741195047024,0.0534290616206252,0.0350546650843883,0.0304516860904656,0.000267290885378432,0.000342992006203271,6.9628437081622e-05,7.71875546844797e-08,9.0942688848994e-06,9.09426888489933e-06,9.09426888487899e-06,9.09426887917423e-06,9.09426745420377e-06,9.09395574900561e-06,9.03561118119964e-06,0,0,0,0],[0.00104299925784279,0.957787309344004,0.0109751855922251,0.0264655305593581,0.000661800996576985,0.00165188868516281,0.00249039368003901,0.0035791759182584,0.00152820725787215,0.0110292202851623,0.0530757983345455,0.00188020638776022,0.0543162624142524,0.0354199184071828,0.0307357563168319,0.000268939751378287,0.000345327269906277,7.01009223712253e-05,7.74648299924598e-08,9.13374998892198e-06,9.13374998892191e-06,9.13374998890152e-06,9.13374998318308e-06,9.13374855437422e-06,9.13343589031257e-06,9.0748815525989e-06,0,0,0,0],[0.000663958324238111,0.000434551219997469,0.419266878786309,0.0159954655152572,0.000421465813061137,0.00105086927928303,0.00165294029651708,0.00236692964639585,0.0010172255574416,0.00689904585489865,0.0252488097714005,0.00119581413424869,0.0247957355493303,0.0199903374719637,0.017977609025163,0.000174859547801191,0.000219916304515245,4.46829503970038e-05,5.48343382278428e-08,6.30749162189646e-06,6.30749162189641e-06,6.30749162188128e-06,6.30749161766938e-06,6.30749057561338e-06,6.30726543253331e-06,6.26582144026622e-06,0,0,0,0],[0.00158489540056635,0.00103847938012971,0.0158520362271304,0.0464502179005605,0.00100727355120126,0.00250354881791056,0.00439489372475766,0.00622656716029764,0.00272739329080028,0.0156330044862665,0.0256655317345515,0.0028467352310512,0.0232467587637586,0.0340939410712451,0.0334565746563168,0.000439396421330176,0.000524848744964104,0.000107066610994384,1.74263211073258e-07,1.87013623584299e-05,1.87013623584297e-05,1.87013623583743e-05,1.87013623433338e-05,1.87013587311903e-05,1.87006071015053e-05,1.85689394274121e-05,0,0,0,0],[0.00354756545891355,0.00232092832474688,0.0373308229704713,0.0900252776570782,0.96063692232457,0.00561859436712598,0.0084699937267585,0.0121730891441511,0.0051975088942509,0.0375149107446029,0.18061363000358,0.00639517757735806,0.184847755128277,0.120498527520808,0.104556604920179,0.000914714080003798,0.00117456459782392,0.000238434564171538,2.63433961328756e-07,3.10623775680815e-05,3.10623775680813e-05,3.10623775680119e-05,3.10623775485666e-05,3.10623726898758e-05,3.10613094469925e-05,3.08621841940097e-05,0,0,0,0],[0.00102393879767578,0.000669914034758456,0.0107636085159277,0.0258748052330085,0.000649728123342954,0.899153049097035,0.00245331842103032,0.00352485313193274,0.00150580458233263,0.0108125286933102,0.0509253087568967,0.00184571072914046,0.0519417152491061,0.0344379437567784,0.0299712775490499,0.000264490841817735,0.000339030654245083,6.88269704681433e-05,7.67146252109278e-08,9.02702299975521e-06,9.02702299975514e-06,9.02702299973487e-06,9.02702299405352e-06,9.02702157564194e-06,9.02671150759594e-06,8.96872472801889e-06,0,0,0,0],[0.00250074917524431,0.00163669231026754,0.0259863568787268,0.0603062800067457,0.00158740680346382,0.00395807094294711,0.42570780128437,0.00890855439148996,0.00382811512735509,0.0259935313246239,0.0956410254886812,0.0045040237744446,0.0939975558434957,0.0754658001086911,0.0678222114368737,0.000658339474248477,0.000828294128657758,0.000168290791477282,0.000268937473381652,0.0103332923934152,0.0103332923934102,0.0103332923924256,0.0103332922273098,0.0103332693142776,0.0103307565706196,0.0101291019369309,0,0,0,0],[0.000440898835173765,0.000288622093787794,0.00454898721061175,0.0103276570581132,0.000279934277143417,0.000697576328376141,0.00112123446055834,0.253066731261599,0.000691064647798948,0.00453822984718513,0.0142915880489881,0.000793684294823444,0.0137435350652824,0.0124527692993061,0.011405038658909,0.000117346139699739,0.000146049334535582,2.96921064293695e-05,3.84599658512017e-08,4.36739026083525e-06,4.36739026083521e-06,4.36739026082433e-06,4.36739025780757e-06,4.36738951534887e-06,4.36723017961908e-06,4.33816361687295e-06,0,0,0,0],[0.000184019460609488,0.000120416913856794,0.00192289194065742,0.00453910044230737,0.00011678969939481,0.000291341673379853,0.000449687657923159,0.000644993671279018,0.611055810586659,0.00192738207107441,0.00799560130407687,0.000331563993795296,0.00799861782592514,0.00585027535733749,0.00517800975185036,4.80127759831341e-05,6.09422201985342e-05,1.2376857438967e-05,1.44942365477239e-08,1.68580927141919e-06,1.68580927141918e-06,1.68580927141527e-06,1.68580927032166e-06,1.68580899854848e-06,1.68574994235445e-06,1.67479462779789e-06,0,0,0,0],[0.00168477285343607,0.00110201594192343,0.0178398004963126,0.0437425247061836,0.00106879613624111,0.00266921520290147,0.312495180060234,0.383898944927377,0.217232596399306,0.315776567310551,0.0908672978331684,0.00303852965247621,0.0924597179665563,0.0595732556470097,0.0513429887681831,0.000430474043161275,0.000557863719712114,0.000113161221754831,6.27276548306284e-05,0.00348751224307967,0.00348751224307918,0.00348751224297134,0.00348751222218427,0.00348750882484534,0.0034870541489902,0.0034398692483645,0,0,0,0],[0.00413005945171753,0.00271944022656952,0.0351949664384803,0.0472580723233285,0.00263845439837336,0.00646948007113154,0.0150280427669025,0.0202546246353437,0.00970928614943,0.0327517880082879,0.0229336565661049,0.0073329220022392,0.0228208831542571,0.0385444393753547,0.0399774280877457,0.00126260642770491,0.00136433554792389,0.000283560161071748,1.25253059765738e-06,9.79955268477371e-05,9.79955268477334e-05,9.7995526846804e-05,9.79955266347697e-05,9.79954847294097e-05,9.79884983083311e-05,9.704393157111e-05,0,0,0,0],[0.00152913631430882,0.00100044798605164,0.01607028475697,0.0386027988489195,0.000970302804840533,0.00242166647372853,0.00366677081448867,0.00526793263475013,0.00225072550202529,0.0161418645602421,0.0756333980564672,0.886495496462328,0.0770811915278002,0.0513100160151855,0.0446863152161052,0.00039515335970661,0.000506308698958827,0.000102787814578979,1.1480355808723e-07,1.35024201975939e-05,1.35024201975938e-05,1.35024201975634e-05,1.35024201890547e-05,1.35024180651653e-05,1.35019538929878e-05,1.34151767616332e-05,0,0,0,0],[0.0123714645726424,0.00812280022406009,0.11578418445385,0.199259092934118,0.00787962671052083,0.0194740880887204,0.0393723032909531,0.0546163690377804,0.0248523450493809,0.111481710982065,0.104217273307597,0.0221142072510918,0.0990609484446315,0.179637062375583,0.18451655856632,0.00361575041484936,0.00408963183609528,0.000841427971080458,2.20678551443209e-06,0.000204120449578252,0.000204120449578248,0.000204120449577198,0.00020412044931477,0.00020412039189461,0.000204109640120592,0.000202443668782508,0,0,0,0],[0.0327976794645186,0.0216181439098847,0.270433975507525,0.340015743631727,0.0209755872735162,0.051284175804218,0.123082222294036,0.164004109494924,0.0802814002355137,0.248845451000193,0.174317032691511,0.0580895675913062,0.172496003767142,0.278810438896023,0.287243141158984,0.0101157030911314,0.0108426328699979,0.00225956951858817,1.1974618630525e-05,0.000873674380554474,0.000873674380554429,0.000873674380543342,0.000873674378136584,0.000873673926991219,0.000873602879111627,0.000864577357815119,0,0,0,0],[0.000474343377145027,0.000311105956340514,0.0045958638888939,0.00863034591770914,0.000301773835508622,0.000748051282825359,0.00141619751699617,0.00198767142771579,0.000885442523884156,0.0044795385900572,0.00485491188217771,0.000850060756069535,0.00451089334665336,0.00814405165063839,0.00840171688688528,0.00215132629793887,0.00216765469479828,4.01315468535446e-05,6.53504093616194e-08,6.59270362371069e-06,6.59270362371061e-06,6.59270362368665e-06,6.59270361735174e-06,6.59270214293625e-06,6.59240673937904e-06,6.54304547808481e-06,0,0,0,0],[8.4103727972496e-05,5.49879986773984e-05,0.000903043910020713,0.00229020081490691,5.33290569682392e-05,0.000133348534051413,0.000187843830930772,0.000272125299654496,0.000114526976624024,0.000913842188899114,0.00518915255892266,0.000151842486464644,0.00533762070195969,0.00322522866739352,0.0436930162512141,0.917605841290533,0.915312501380206,0.00350035982796343,4.88416946744007e-09,6.2574045133256e-07,6.25740451332557e-07,6.2574045133157e-07,6.25740451037918e-07,6.25740372894083e-07,6.2572206744827e-07,6.22028605445984e-07,0,0,0,0],[7.18635932043519e-06,4.70146562897506e-06,7.56494378047159e-05,0.000182344763858623,4.55978824828123e-06,1.13819805074534e-05,1.71513857376037e-05,2.46598643134718e-05,1.05209667993414e-05,7.60271384429925e-05,0.000362741287698592,1.29552885616986e-05,0.000371316148297632,0.000243298667262313,0.0029393779768883,0.0611217573692124,0.0609690781367343,0.000327810945296483,5.26350397425863e-10,6.25591391957347e-08,6.25591391957343e-08,6.25591391956018e-08,6.25591391579712e-08,6.25591296456752e-08,6.25570254715332e-08,6.21591431184296e-08,0,0,0,0],[4.00018875265582e-09,2.6125517634756e-09,4.44729196664534e-08,1.24624954506007e-07,2.53357832018947e-09,6.35410815075957e-09,7.72884490253117e-09,1.13329861080063e-08,4.6672106598213e-09,4.55719107385202e-08,4.5873294203036e-07,7.24041655707975e-09,5.07572869260608e-07,2.0806474661257e-07,5.51156522266634e-06,0.000115248148303615,0.000161650980712201,0.991712707654167,1.52828654050192e-13,2.20008035279121e-11,2.2000803527912e-11,2.2000803527889e-11,2.20008035206183e-11,2.20008014552528e-11,2.20002790952241e-11,2.18846510889565e-11,0,0,0,0],[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.954841603910415,0,0,0,0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.0440240006902678,0.950557830672465,0,0,0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.000772934388790671,0.0334031366200164,0.950557830672465,0,0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,9.05038948350749e-06,0.000586902500853701,0.0334031366200164,0.950557830672465,0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,7.94910616003285e-08,6.8746946217803e-06,0.000586902500853701,0.0334031366200164,0.950557830672465,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,5.5858835242499e-10,6.03951585748772e-08,6.8746946217803e-06,0.000586902500853701,0.0334031366200164,0.950557830672465,0,0,0,0,0,0],[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,3.27116775265165e-12,4.24463965887691e-10,6.03951585748772e-08,6.8746946217803e-06,0.000586902500853701,0.0334031366200164,0.950557830672465,0,0,0,0,0],[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1.64202058419948e-14,2.48598373595535e-12,4.24463965887691e-10,6.03951585748772e-08,6.8746946217803e-06,0.000586902500853701,0.0334031366200164,0.950557830672465,0,0,0,0],[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,7.25307915526742e-17,1.25593867230552e-14,2.50410637530794e-12,4.28077280593329e-10,6.10128551505377e-08,6.96273347225497e-06,0.000596949417188732,0.0342645082170536,1,0,0,0],[0.000117156850092129,7.65096448357977e-05,0.00130606770817624,0.00369075158344806,7.41965274341622e-05,0.000186124420791957,0.0554679381838925,0.0755516961678683,0.0355620875527057,0.143979641169362,0.0141544718508804,0.000212097569466519,0.0157306072733393,0.0062614259556019,0.00482255139801695,2.70647238349233e-05,3.86857919754026e-05,7.82695953476972e-06,4.26792015820527e-06,0.000338280985215989,0.000338280985215975,0.000338280985212553,0.000338280984452499,0.000338280837802117,0.000338256837598036,0.00033503850889757,0,1,0,0],[2.3233703144167e-05,1.51844768774667e-05,0.000252659657254958,0.0100974763348222,1.47260445486999e-05,3.68624705049721e-05,4.94179093120677e-05,7.19080468234128e-05,3.00241337157065e-05,0.000256850036680295,0.00173912928452733,4.19856264827899e-05,0.00181331263643853,0.000986396607496114,0.000816625718789245,5.68491596324205e-06,7.69108181699505e-06,1.55616828599376e-06,1.16762777177843e-09,1.55792867567055e-07,1.55792867567054e-07,1.5579286756684e-07,1.55792867501926e-07,1.55792849858873e-07,1.55788609715242e-07,1.54905482287648e-07,0,0,1,0],[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1]],"G":[0.000260933910426573,0.00026270596739374,0.000167420726418056,0.000400951131798475,0.000893543191316502,0.000257928028282862,0.000630564108304008,0.000111241350940247,4.6378153291879e-05,0.000424114766017978,0.00105957946618127,0.000385194432117724,0.00314813631382508,0.00843949623497635,0.000120331835249049,2.11446602203246e-05,1.80997988126479e-06,1.00259158435483e-09,0,0,0,0,0,0,0,0,0,2.93567808879264e-05,5.83462654573021e-06,0],"flujos":[{"de":"adiposo","a":"ven","k":4.04819089381371},{"de":"hueso","a":"ven","k":2.63053391644328},{"de":"corazon","a":"ven","k":53.1501864194991},{"de":"rinon","a":"ven","k":254.747675229311},{"de":"rinon","a":"elim_renal","k":2.46014172119083},{"de":"musculo","a":"ven","k":2.55028379211728},{"de":"piel","a":"ven","k":6.48642808935391},{"de":"intestino","a":"higado","k":52.123369458979},{"de":"bazo","a":"higado","k":82.8272566046198},{"de":"pancreas","a":"higado","k":29.5811630730785},{"de":"higado","a":"ven","k":57.9146258486539},{"de":"higado","a":"elim_hepatica","k":14.7635179373511},{"de":"pulmon","a":"art","k":851.145759661769},{"de":"resto","a":"ven","k":7.41559792493994},{"de":"art","a":"adiposo","k":11.4705882352941},{"de":"art","a":"hueso","k":11.4705882352941},{"de":"art","a":"corazon","k":9.17647058823529},{"de":"art","a":"rinon","k":43.5882352941176},{"de":"art","a":"musculo","k":39},{"de":"art","a":"piel","k":11.4705882352941},{"de":"art","a":"intestino","k":34.4117647058824},{"de":"art","a":"bazo","k":6.88235294117647},{"de":"art","a":"pancreas","k":2.29411764705882},{"de":"art","a":"higado","k":14.9117647058824},{"de":"art","a":"resto","k":17.2058823529412},{"de":"art","a":"BB","k":27.5294117647059},{"de":"ven","a":"pulmon","k":111.428571428571},{"de":"BB","a":"ven","k":623.72},{"de":"BB","a":"BM","k":19.4021934941895},{"de":"BB","a":"LCRc","k":9.70109674709474},{"de":"BM","a":"BB","k":0.954983597107182},{"de":"BM","a":"LCRc","k":152.800080192322},{"de":"LCRc","a":"ven","k":0.100153846153846},{"de":"LCRc","a":"BB","k":7.15067633526032},{"de":"LCRc","a":"BM","k":2288.2164272833},{"de":"LCRc","a":"LCRe","k":0.115230769230769},{"de":"LCRe","a":"ven","k":0.266},{"de":"LCRe","a":"LCRc","k":0.233333333333333},{"de":"estomago","a":"id1","k":2.77258872223978},{"de":"id1","a":"intestino","k":0.933942857142857},{"de":"id1","a":"id2","k":2.10843373493976},{"de":"id2","a":"intestino","k":0.933942857142857},{"de":"id2","a":"id3","k":2.10843373493976},{"de":"id3","a":"intestino","k":0.933942857142857},{"de":"id3","a":"id4","k":2.10843373493976},{"de":"id4","a":"intestino","k":0.933942857142857},{"de":"id4","a":"id5","k":2.10843373493976},{"de":"id5","a":"intestino","k":0.933942857142857},{"de":"id5","a":"id6","k":2.10843373493976},{"de":"id6","a":"intestino","k":0.933942857142857},{"de":"id6","a":"id7","k":2.10843373493976},{"de":"id7","a":"intestino","k":0.933942857142857},{"de":"id7","a":"colon","k":2.10843373493976}],"V":{"ven":3.5,"art":1.7,"adiposo":15,"hueso":10.5,"corazon":0.33,"rinon":0.31,"musculo":29,"piel":3.3,"intestino":1.17,"bazo":0.15,"pancreas":0.14,"higado":1.8,"pulmon":0.5,"resto":4.4,"BB":0.075,"BM":1.45,"LCRc":0.13,"LCRe":0.03},"BP":1.09,"fu":0.855,"fu_bm":0.747,"par":{"PS_B":1.875,"PS_C":0.9375,"PS_E":300,"Q_bulk":0.00525,"Q_cerebro":46.8,"Q_CSF":0.021,"Q_Csink":0.01302,"Q_Ssink":0.00798,"Q_Sin":0.01498,"Q_Sout":0.007,"fu_csf":1,"fn_p":0.989398405083814,"fn_lis":0.988648793078385,"fn_lcr":0.991560451822765,"CO":390,"CL_r":0.78,"CLint_u":32.3196591335947},"pauta":{"dosis":1000,"intervalo":8,"n":6,"inf_min":15},"validacion":{"tolerancia":"1e-4 relative","error_max":{"Cp_iv":5.95e-10,"lcr_iv":1.44e-09,"Cp_oral":2.82e-11,"lcr_oral":2.33e-11},"referencia":"rxode2 5.0.2, atol 1e-11, rtol 1e-10"},"referencia":{"t":[0,0.5,1,1.5,2,2.5,3,3.5,4,4.5,5,5.5,6,6.5,7,7.5,8,8.5,9,9.5,10,10.5,11,11.5,12,12.5,13,13.5,14,14.5,15,15.5,16,16.5,17,17.5,18,18.5,19,19.5,20,20.5,21,21.5,22,22.5,23,23.5,24,24.5,25,25.5,26,26.5,27,27.5,28,28.5,29,29.5,30,30.5,31,31.5,32,32.5,33,33.5,34,34.5,35,35.5,36,36.5,37,37.5,38,38.5,39,39.5,40,40.5,41,41.5,42,42.5,43,43.5,44,44.5,45,45.5,46,46.5,47,47.5,48],"Cp_iv":[0,12.5690305830572,9.97755606641924,8.34933977645292,7.03042138588807,5.92804970464985,5.00128247770103,4.22066192868801,3.56253279528437,3.00737764841013,2.53893048499092,2.14356599041367,1.80983710410622,1.52810948364628,1.29026541130204,1.08946027815215,0.9199203745011,13.3458045428094,10.6334656537803,8.9031968075982,7.4981083987485,6.32297643536322,5.33477110059707,4.50227221508215,3.80033657997875,3.20819051997089,2.70850737540347,2.2867662950064,1.93076408289745,1.63022795293323,1.3765011088829,1.16228375769097,0.981417838929497,13.3977376524057,10.6773220213903,8.94023264250108,7.52938450379595,6.34938860908892,5.35707580740165,4.52110825988591,3.81624341126327,3.22162368442654,2.71985156911943,2.29634638376874,1.93885440817243,1.63706019020622,1.38227090367832,1.16715632929793,0.985532712633025,13.4012126550177,10.6802566574678,8.94271093967305,7.53147742533768,6.35115608212987,5.35856843980112,4.52236878996331,3.8173079309084,3.22252267343117,2.72061076750937,2.29698752890044,1.93939585718851,1.63751744568993,1.38265705711352,1.16748243733938,0.985808112330421,13.4014452287104,10.6804530689792,8.94287681026602,7.53161750374312,6.35127437904642,5.35866834212017,4.52245315794815,3.8173791801256,3.22258284378199,2.72066158169944,2.29703044176655,1.93943209732346,1.637548050712,1.38268290368866,1.16750426492904,0.985826545737401,13.4014607984377,10.6804662156766,8.9428879125959,7.53162687977151,6.35128229713486,5.35867502906557,4.5224588049271,3.81738394904377,3.2225868711927,2.72066498287173,2.29703331407284,1.93943452302995,1.63755009921217,1.3826846336402,1.16750572579923,0.985827779454826],"lcr_iv":[0,0.973604910299221,2.50880163792453,3.75347147047559,4.6033045364178,5.08636674978141,5.27189073386259,5.23486842877882,5.04214710966176,4.74814179030871,4.3947603152475,4.01297399472999,3.62483991771015,3.24545407675122,2.88463882719133,2.54831863403779,2.23960272610727,2.93322159642041,4.21693105983894,5.23748983154899,5.88891384894591,6.19728743819586,6.22972635986684,6.059088779826,5.75015000107366,5.35536467530319,4.91482091288057,4.45782522757477,4.00492897206814,3.5698787303464,3.16129662208752,2.78404622647629,2.44030399404946,3.10398395020087,4.36213000707624,5.36088221752677,5.99372044876246,6.28626570522227,6.30523420404544,6.12314024924216,5.80446372638473,5.40140589343754,4.9538378121719,4.49088032023403,4.03292611114086,3.59358633490867,3.18136760941146,2.80103509362448,2.45468143651956,3.11614936141741,4.37242214657525,5.36958831582649,6.00108396703663,6.29249294521724,6.31049993027835,6.12759247601061,5.80822778291102,5.40458787541285,4.95652752035395,4.4931537478956,4.03484755684778,3.5952101941851,3.18273989590588,2.80219471919079,2.45566130839058,3.11697730727952,4.37312169341974,5.3701793536423,6.00158330960012,6.2929148048535,6.31085631936464,6.12789354705602,5.80848211601557,5.40480272109429,4.95670900545754,4.49330704950418,4.03497704943558,3.59531957340762,3.18283228207098,2.80227275308985,2.45572721988548,3.11703297819753,4.3731687142938,5.37021906808084,6.00161685262812,6.29294313520804,6.31088024751472,6.12791375580238,5.80849918395444,5.4048171363933,4.95672118014291,4.49331733180733,4.03498573330461,3.59532690754131,3.18283847626227,2.80227798497313,2.45573163838212],"Cp_oral":[0,3.46367322473863,5.72293641631656,6.55203217919351,6.53873481046735,6.070906967127,5.40210845563125,4.68824048411538,4.01203658996629,3.4082203676664,2.88494935784461,2.43810422832314,2.05912147696115,1.73864297574263,1.46795308650885,1.23940827233796,1.04646595360657,4.34725240142725,6.46899782088413,7.18198948395952,7.07066416330307,6.52006812031675,5.78138423987427,5.0085074858772,4.28247787576352,3.63658936891124,3.07779257737618,2.60094921496487,2.19663549735021,1.85476695930094,1.56601470208684,1.32221739127132,1.11639524524708,4.40630537824496,6.51886628961746,7.22410205140427,7.10622719221095,6.55010031013199,5.80674582515548,5.02992489063472,4.30056453108725,3.65186329117932,3.09069121127904,2.61184196706712,2.2058343196202,1.86253528607791,1.57257499671256,1.32775751872787,1.12107385346818,4.41025644249192,6.52220294928256,7.22691985123299,7.10860681841564,6.55210990119024,5.80844292327598,5.03135808966882,4.30177486814543,3.65288542181043,3.09155440188553,2.61257093297805,2.20644993282837,1.86305517291192,1.57301404256195,1.32812829427645,1.1213869746434,4.41052087444162,6.5224262630705,7.22710844061862,7.10876608294357,6.55224440078411,5.80855650879698,5.03145401317749,4.30185587601531,3.65295383336196,3.09161217579171,2.61261972334467,2.20649113655377,1.86308996968227,1.57304342862701,1.32815311097344,1.12140793248528,4.41053857345912,6.52244120999481,7.22712106338024,7.10877674293712,6.55225340321822,5.80856411140727,5.03146043362788,4.30186129812491,3.65295841236726,3.0916160427898,2.6126229890484,2.20649389446098,1.86309229875227,1.57304539554131,1.32815477204499,1.12140933527076],"lcr_oral":[0,0.0527568069733998,0.380649624466738,0.981169117464355,1.70160742789168,2.39335279024096,2.95919929753353,3.35528517039431,3.57766834526274,3.64630270105657,3.59183048942737,3.44675835529674,3.24058477113704,2.99773443057762,2.73717579725033,2.47289307045307,2.21469580901194,2.0218410652592,2.12068706757791,2.51084427607748,3.04039507590191,3.56059849568127,3.9735097216032,4.23414746061679,4.33723560664721,4.30129729597239,4.15552880964217,3.93103005318136,3.65596665263102,3.3535247128345,3.04153858183281,2.73296598053151,2.43669602972103,2.21116670260693,2.28201195311956,2.64820520779173,3.15727108948441,3.65998217174786,4.05797080554423,4.3058892406747,4.39814459176984,4.35298677968944,4.19937691549259,3.9682128429314,3.68748684919002,3.38023655154256,3.06416926101383,2.7521341378992,2.45292762743074,2.22490866179118,2.29364383943987,2.65804923336942,3.16560066348575,3.66702920250423,4.0639319303885,4.31093113630617,4.40240849727975,4.35659234619855,4.20242548051317,3.97079021376425,3.68966566768922,3.38207830221879,3.06572597549935,2.75344984108978,2.45403956399208,2.22584833602903,2.29443789665361,2.65872020665016,3.1661676062833,3.66750822440467,4.06433665069702,4.3112730680417,4.40269737216913,4.35683638969159,4.20263164446799,3.97096437328893,3.68981278763924,3.38220257801029,3.06583095218674,2.75353851405205,2.45411446406034,2.22591160145294,2.29449133393682,2.65876534196025,3.166205728955,3.66754042361944,4.06436384654907,4.3112960377702,4.40271677232352,4.35685277486109,4.20264548310765,3.97097606109046,3.68982265882793,3.38221091488909,3.06583799319945,2.75354446059498,2.45411948623666]}};
+</script>
+<script>
+(function () {
+  "use strict";
+  var MOD = window.MODELO_4BRAIN;
+  var N = MOD.estados.length, I = {};
+  MOD.estados.forEach(function (s, i) { I[s] = i; });
+  var M = new Float64Array(N * N), G = Float64Array.from(MOD.G), H = MOD.h, PH = Math.round(1 / H);
+  MOD.M.forEach(function (f, i) { for (var j = 0; j < N; j++) M[i * N + j] = f[j]; });
+  var K = {}; MOD.flujos.forEach(function (f) { K[f.de + ">" + f.a] = f.k; });
+  var V = MOD.V, BP = MOD.BP, PAR = MOD.par || {};
+  var COL = { iv: "#2be8ff", oral: "#ffb23e", elim: "#ff5c72", violeta: "#a57cff", venosa: "#6a5cff", arterial: "#ff3d8e" };
+  var reducido = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  // ------------------------------------------------------------------ la simulacion: un paso = 1 minuto, exacto
+  function avanzar(x, y, tasa) { for (var i = 0; i < N; i++) { var s = G[i] * tasa, o = i * N; for (var j = 0; j < N; j++) s += M[o + j] * x[j]; y[i] = s; } }
+  function Cp(x) { return x[I.ven] / V.ven / BP; }
+  function Clcr(x) { return x[I.LCRe] / V.LCRe; }
+
+  var pauta = { dosis: 1000, intervalo: 8, n: 6, inf_min: 15 };
+  function nuevoTratamiento(id, via) {
+    return { id: id, via: via, activo: true, x: new Float64Array(N), y: new Float64Array(N), finInf: -1, tasa: 0, eventos: {}, extras: [],
+             admin: 0, dadas: 0, cmaxP: 0, cmaxL: 0, serieP: [], serieL: [], sombraP: [], sombraL: [] };
+  }
+  var TR = [nuevoTratamiento("iv", "iv"), nuevoTratamiento("oral", "oral")];
+  var k = 0, pasosPorMuestra = 6;          // se guarda una muestra cada 0,1 h
+  function programar(tr) { tr.eventos = {}; for (var d = 0; d < pauta.n; d++) tr.eventos[Math.round(d * pauta.intervalo * PH)] = pauta.dosis;
+    tr.extras.forEach(function (e) { tr.eventos[e.k] = (tr.eventos[e.k] || 0) + e.dosis; }); }
+  function horizonte() { var ult = 0; TR.forEach(function (tr) { Object.keys(tr.eventos).forEach(function (kk) { ult = Math.max(ult, +kk); }); }); return Math.max(48, Math.ceil((ult / PH + 12) / 4) * 4); }
+
+  function dar(tr, dosis, kk, efectos) {
+    if (tr.via === "iv") { var nInf = Math.max(1, pauta.inf_min); tr.finInf = kk + nInf; tr.tasa = dosis / (nInf * H); }
+    else tr.x[I.estomago] += dosis;
+    tr.admin += dosis; tr.dadas += 1;
+    if (efectos) destello(tr);
+  }
+  function unPaso(tr, efectos) {
+    var d = tr.eventos[k]; if (d) dar(tr, d, k, efectos);
+    avanzar(tr.x, tr.y, k < tr.finInf ? tr.tasa : 0); var t = tr.x; tr.x = tr.y; tr.y = t;
+  }
+  function paso(efectos) {
+    TR.forEach(function (tr) { if (tr.activo) unPaso(tr, efectos); });
+    k += 1;
+    if (k % pasosPorMuestra === 0) TR.forEach(function (tr) { if (!tr.activo) return; var p = Cp(tr.x), l = Clcr(tr.x);
+      tr.serieP.push(p); tr.serieL.push(l); if (p > tr.cmaxP) tr.cmaxP = p; if (l > tr.cmaxL) tr.cmaxL = l; });
+  }
+  // una pasada muda de toda la pauta: fija los ejes y da la «curva entera»
+  function sombra(tr) {
+    var x = new Float64Array(N), y = new Float64Array(N), fin = -1, tasa = 0, P = [0], L = [0], T = horizonte() * PH;
+    for (var kk = 0; kk < T; kk++) { var d = tr.eventos[kk];
+      if (d) { if (tr.via === "iv") { var nI = Math.max(1, pauta.inf_min); fin = kk + nI; tasa = d / (nI * H); } else x[I.estomago] += d; }
+      avanzar(x, y, kk < fin ? tasa : 0); var tmp = x; x = y; y = tmp; if ((kk + 1) % pasosPorMuestra === 0) { P.push(Cp(x)); L.push(Clcr(x)); } }
+    tr.sombraP = P; tr.sombraL = L;
+  }
+  function reiniciar(avance) {
+    k = 0; TR.forEach(function (tr) { tr.x = new Float64Array(N); tr.y = new Float64Array(N); tr.finInf = -1; tr.tasa = 0; tr.admin = 0; tr.dadas = 0; tr.cmaxP = 0; tr.cmaxL = 0;
+      tr.serieP = [0]; tr.serieL = [0]; tr.extras = []; programar(tr); sombra(tr); });
+    VISTAS.forEach(function (v) { v.particulas.length = 0; v.destellos.length = 0; v.acc = [{}, {}]; }); ejes();
+    var hasta = Math.round((avance || 0) * PH); while (k < hasta) paso(false);
+  }
+
+  // ------------------------------------------------------------------ comprobacion contra rxode2 al abrir
+  function comprobar() {
+    var ref = MOD.referencia, err = 0, salida = {};
+    [["iv", "Cp_iv", "lcr_iv"], ["oral", "Cp_oral", "lcr_oral"]].forEach(function (c) {
+      var x = new Float64Array(N), y = new Float64Array(N), fin = -1, tasa = 0, nI = 15, P = [], L = [];
+      var ks = {}; for (var d = 0; d < 6; d++) ks[d * 8 * PH] = 1000;
+      var porT = {}; ref.t.forEach(function (t, i) { porT[Math.round(t * PH)] = i; });
+      for (var kk = 0; kk <= 48 * PH; kk++) {
+        if (porT[kk] !== undefined) { P[porT[kk]] = Cp(x); L[porT[kk]] = Clcr(x); }
+        if (kk === 48 * PH) break;
+        if (ks[kk]) { if (c[0] === "iv") { fin = kk + nI; tasa = ks[kk] / (nI * H); } else x[I.estomago] += ks[kk]; }
+        avanzar(x, y, kk < fin ? tasa : 0); var tmp = x; x = y; y = tmp;
+      }
+      var rp = ref[c[1]], rl = ref[c[2]], mp = Math.max.apply(null, rp), ml = Math.max.apply(null, rl);
+      for (var i = 0; i < rp.length; i++) { if (rp[i] > 0.01 * mp) err = Math.max(err, Math.abs(P[i] - rp[i]) / rp[i]); if (rl[i] > 0.01 * ml) err = Math.max(err, Math.abs(L[i] - rl[i]) / rl[i]); }
+      salida[c[0]] = { Cp: P, lcr: L };
+    });
+    salida.error_max = err; return salida;
+  }
+
+  // ------------------------------------------------------------------ utilidades de dibujo
+  function fmtV(v) { return (v >= 1 ? (Math.round(v * 10) / 10) : (Math.round(v * 1000) / 1000)).toString() + " L"; }
+  function num(v, d) { return v.toFixed(d); }
+  function cifra(v) { return num(v, v >= 100 ? 0 : v < 0.1 ? 3 : v < 1 ? 2 : 1); }
+  function redondeado(c, x, y, w, h, r) { c.beginPath(); c.moveTo(x + r, y); c.arcTo(x + w, y, x + w, y + h, r); c.arcTo(x + w, y + h, x, y + h, r); c.arcTo(x, y + h, x, y, r); c.arcTo(x, y, x + w, y, r); c.closePath(); }
+  function punta(c, p0, p1, col) { var a = Math.atan2(p1[1] - p0[1], p1[0] - p0[0]), l = 8; c.fillStyle = col; c.beginPath(); c.moveTo(p1[0], p1[1]);
+    c.lineTo(p1[0] - l * Math.cos(a - 0.42), p1[1] - l * Math.sin(a - 0.42)); c.lineTo(p1[0] - l * Math.cos(a + 0.42), p1[1] - l * Math.sin(a + 0.42)); c.closePath(); c.fill(); }
+  // texto con subindices: «PS_B 1,88 L/h» sale con la B abajo; nada de «_» a la vista
+  function trozos(s) { var out = [], re = /([A-Za-z]+)_([A-Za-z0-9,]+)/g, pos = 0, m;
+    while ((m = re.exec(s))) { if (m.index > pos) out.push({ t: s.slice(pos, m.index) }); out.push({ t: m[1] }); out.push({ t: m[2], sub: true }); pos = m.index + m[0].length; }
+    if (pos < s.length) out.push({ t: s.slice(pos) }); return out; }
+  function textoRico(c, s, x, y, tam, peso, fuente, alinear) { var ps = trozos(s), ancho = 0;
+    ps.forEach(function (p) { c.font = peso + " " + (p.sub ? tam * 0.72 : tam) + "px " + fuente; p.w = c.measureText(p.t).width; ancho += p.w; });
+    var x0 = alinear === "center" ? x - ancho / 2 : alinear === "right" ? x - ancho : x; c.textAlign = "left";
+    ps.forEach(function (p) { c.font = peso + " " + (p.sub ? tam * 0.72 : tam) + "px " + fuente; c.fillText(p.t, x0, y + (p.sub ? tam * 0.3 : 0)); x0 += p.w; });
+    return ancho; }
+  function visible(el) { return !!el && el.getClientRects().length > 0 && el.getBoundingClientRect().width > 0; }
+
+  // ------------------------------------------------------------------ las vistas: PBPK (cuerpo entero) y Cerebro (ampliado)
+  function Vista(id, construir, pintar) { var cv = document.getElementById(id);
+    return { cv: cv, cx: cv.getContext("2d"), fondo: document.createElement("canvas"), escala: 1, modo: null, W: 1000, HH: 700, CAJAS: [], ARISTAS: [], ETQ: [], ICONOS: {},
+             particulas: [], destellos: [], acc: [{}, {}], elegido: null, encima: null, construir: construir, pintar: pintar, visto: false, ritmo: 4.2, maxp: 2200 }; }
+  function arista(v, id, de, a, pts, tipo, fn, rot) { v.ARISTAS.push({ id: id, de: de, a: a, pts: pts, tipo: tipo, rot: rot || null,
+    fn: fn || function (tr) { return (K[de + ">" + a] || 0) * tr.x[I[de]]; } }); }
+  function largos(v) { v.ARISTAS.forEach(function (e) { var L = [0]; for (var j = 1; j < e.pts.length; j++) L.push(L[j - 1] + Math.hypot(e.pts[j][0] - e.pts[j - 1][0], e.pts[j][1] - e.pts[j - 1][1])); e.L = L; e.largo = L[L.length - 1]; }); }
+  function modoDe(v) { var d = v.cv.parentElement; var a = (d && d.clientWidth) || 0; if (!a) return v.modo || "escritorio"; return a < 700 ? "movil" : "escritorio"; }
+  function preparar(v, modo) { v.modo = modo; v.CAJAS = []; v.ARISTAS = []; v.ETQ = []; v.ICONOS = {}; v.elegido = null; v.encima = null; v.particulas.length = 0; v.destellos.length = 0; v.acc = [{}, {}];
+    v.construir(v, modo === "movil"); largos(v); v.cv.style.aspectRatio = v.W + " / " + v.HH; v.cv.style.minWidth = modo === "movil" ? "0" : "620px"; }
+  function tam(v) { var r = v.cv.getBoundingClientRect(); if (!r.width) return; var d = Math.min(window.devicePixelRatio || 1, 2); v.escala = r.width / v.W;
+    v.cv.width = Math.round(v.W * v.escala * d); v.cv.height = Math.round(v.HH * v.escala * d); v.fondo.width = v.cv.width; v.fondo.height = v.cv.height;
+    var f = v.fondo.getContext("2d"); f.setTransform(v.escala * d, 0, 0, v.escala * d, 0, 0); v.pintar(v, f); v.cx.setTransform(v.escala * d, 0, 0, v.escala * d, 0, 0); }
+
+  // ---- PBPK: el cerebro, en una fila que abre su pestaña
+  var NOMBRES = { pulmon: "Lung", corazon: "Heart", higado: "Liver", bazo: "Spleen", pancreas: "Pancreas", intestino: "Gut (wall)", rinon: "Kidney",
+                  musculo: "Muscle", piel: "Skin", adiposo: "Adipose tissue", hueso: "Bone", resto: "Rest of body" };
+  var ORDEN = ["pulmon", "corazon", "higado", "bazo", "pancreas", "intestino", "CAT", "rinon", "musculo", "piel", "adiposo", "hueso", "resto"];
+  var PORTAL = { bazo: 1, pancreas: 1, intestino: 1 }, ELIM = { higado: ["elim_hepatica", "metabolism"], rinon: ["elim_renal", "urine"] };
+  var CEREBRO = ["BB", "BM", "LCRc", "LCRe"];
+  function vueltaCerebro(tr) { return (K["BB>ven"] || 0) * tr.x[I.BB] + (K["LCRc>ven"] || 0) * tr.x[I.LCRc] + (K["LCRe>ven"] || 0) * tr.x[I.LCRe]; }
+  function construirPBPK(v, mv) {
+    v.ritmo = mv ? 3.4 : 4.2; v.maxp = mv ? 1300 : 2200;
+    var W = v.W = mv ? 620 : 1200, BX0 = mv ? 116 : 210, BX1 = mv ? W - 116 : 990, PX = mv ? 82 : 150;
+    var BV = v.BAR_V = mv ? { x: 12, w: 34, y0: 12 } : { x: 36, w: 40, y0: 16 }, BA = v.BAR_A = mv ? { x: W - 46, w: 34, y0: 12 } : { x: 1124, w: 40, y0: 16 };
+    v.BX0 = BX0; v.BX1 = BX1;
+    var vb = BV.x + BV.w, ca = BA.x, cv = BV.x + BV.w / 2, cA = BA.x + BA.w / 2;
+    var y0 = mv ? 14 : 18, hc = mv ? 48 : 42, yb = y0 + hc / 2;
+    v.CAJAS.push({ id: "cerebro", agregado: CEREBRO, x: BX0, y: y0, w: BX1 - BX0, h: hc, nombre: mv ? "Brain" : "Brain · 4 compartments", sub: mv ? "4 compartments ›" : "opens the Brain tab ›", enlace: "cerebro" });
+    arista(v, "art>cerebro", "art", "BB", [[ca, yb - 6], [BX1, yb - 6]], "sangre");
+    arista(v, "cerebro>ven", "BB", "ven", [[BX0, yb + 6], [vb, yb + 6]], "sangre", vueltaCerebro);
+    var yy = y0 + hc + 22, org = {}, CAT_Y = 0;
+    ORDEN.forEach(function (id) {
+      if (id === "CAT") { CAT_Y = yy + 19; yy += 56; return; }
+      var h = mv ? (id === "higado" ? 44 : 40) : (id === "higado" ? 38 : 34); org[id] = { y: yy, h: h, yc: yy + h / 2 };
+      v.CAJAS.push({ id: id, x: BX0, y: yy, w: BX1 - BX0, h: h, nombre: NOMBRES[id], sub: fmtV(V[id]), elim: ELIM[id] ? ELIM[id][0] : null, ne: ELIM[id] ? ELIM[id][1] : null }); yy += h + 12; });
+    BV.y1 = BA.y1 = yy + 10; v.HH = BV.y1 + 88;
+    var ypul = org.pulmon.yc, yhig = org.higado.y + org.higado.h / 2 + 8;
+    arista(v, "ven>pulmon", "ven", "pulmon", [[vb, ypul], [BX0, ypul]], "sangre");
+    arista(v, "pulmon>art", "pulmon", "art", [[BX1, ypul], [ca, ypul]], "sangre");
+    arista(v, "ven_sube", "ven", "pulmon", [[cv, BV.y1 - 12], [cv, ypul + 9]], "barra", function (tr) { return (K["ven>pulmon"] || 0) * tr.x[I.ven] * 0.85; });
+    arista(v, "ven_baja", "BB", "ven", [[cv, y0 + 16], [cv, ypul - 9]], "barra", vueltaCerebro);
+    arista(v, "art_baja", "pulmon", "art", [[cA, ypul + 9], [cA, BA.y1 - 12]], "barra", function (tr) { return (K["pulmon>art"] || 0) * tr.x[I.pulmon] * 0.85; });
+    arista(v, "art_sube", "art", "BB", [[cA, ypul - 9], [cA, y0 + 16]], "barra", function (tr) { return (K["art>BB"] || 0) * tr.x[I.art]; });
+    Object.keys(org).forEach(function (id) { if (id === "pulmon") return; var yc = org[id].yc;
+      arista(v, "art>" + id, "art", id, [[ca, yc - 7], [BX1, yc - 7]], "sangre");
+      if (PORTAL[id]) arista(v, id + ">higado", id, "higado", [[BX0, yc + 4], [PX, yc + 4], [PX, yhig], [BX0, yhig]], "portal");
+      else arista(v, id + ">ven", id, "ven", [[BX0, yc + (id === "higado" ? -9 : 7)], [vb, yc + (id === "higado" ? -9 : 7)]], "sangre");
+      if (ELIM[id]) arista(v, id + ">" + ELIM[id][0], id, ELIM[id][0], [[BX1 - (mv ? 104 : 118), yc + 5], [BX1 - (mv ? 36 : 40), yc + 5]], "elim"); });
+    var xs = mv ? BX0 + 24 : 250, x1 = mv ? BX0 + 70 : 322, pasoX = mv ? 40 : 70, CAT_X = []; for (var i = 0; i < 7; i++) CAT_X.push(x1 + pasoX * i);
+    var xcol = CAT_X[6] + (mv ? 42 : 78);
+    v.CAJAS.push({ id: "estomago", x: xs - 15, y: CAT_Y - 15, w: 30, h: 30, nombre: "Stomach", redondo: true, cat: true });
+    CAT_X.forEach(function (x, j) { v.CAJAS.push({ id: "id" + (j + 1), x: x - 11, y: CAT_Y - 11, w: 22, h: 22, nombre: "Small intestine, segment " + (j + 1), redondo: true, cat: true }); });
+    v.CAJAS.push({ id: "colon", x: xcol - 13, y: CAT_Y - 13, w: 26, h: 26, nombre: "Colon (not absorbed)", redondo: true, cat: true });
+    arista(v, "estomago>id1", "estomago", "id1", [[xs + 15, CAT_Y], [CAT_X[0] - 11, CAT_Y]], "oral");
+    for (i = 0; i < 6; i++) arista(v, "id" + (i + 1) + ">id" + (i + 2), "id" + (i + 1), "id" + (i + 2), [[CAT_X[i] + 11, CAT_Y], [CAT_X[i + 1] - 11, CAT_Y]], "oral");
+    arista(v, "id7>colon", "id7", "colon", [[CAT_X[6] + 11, CAT_Y], [xcol - 13, CAT_Y]], "oral");
+    var yint = org.intestino.y + org.intestino.h;
+    for (i = 0; i < 7; i++) arista(v, "id" + (i + 1) + ">intestino", "id" + (i + 1), "intestino", [[CAT_X[i], CAT_Y - 11], [CAT_X[i], yint]], "absorcion");
+    var xp = mv ? PX + 6 : 153;
+    arista(v, "dosis_iv", null, "ven", [[cv, BV.y1 + 48], [cv, BV.y1 + 4]], "dosis", function (tr) { return tr.via === "iv" && k < tr.finInf ? tr.tasa : 0; });
+    arista(v, "dosis_oral", null, "estomago", [[xp + 14, CAT_Y], [xs - 17, CAT_Y]], "dosis", function () { return 0; });
+    v.ICONOS = { jeringa: [cv, BV.y1 + 54], comprimido: [xp, CAT_Y], iv: [cv, BV.y1 - 2], oral: [xs, CAT_Y], porta: [PX - 7, (yhig + org.intestino.yc) / 2] };
+    v.ETQ = mv ? [["small intestine · 7 segments (CAT)", (CAT_X[0] + CAT_X[6]) / 2, CAT_Y + 30]]
+               : [["stomach", xs, CAT_Y + 31], ["small intestine · 7 segments (CAT)", (CAT_X[0] + CAT_X[6]) / 2, CAT_Y + 31], ["colon", xcol, CAT_Y + 31]];
+  }
+  function pintarPBPK(v, c) {
+    var mv = v.modo === "movil", W = v.W, HH = v.HH, BX1 = v.BX1;
+    c.clearRect(0, 0, W, HH); c.fillStyle = "#030208"; c.fillRect(0, 0, W, HH);
+    c.fillStyle = "rgba(165,124,255,0.06)"; for (var gx = 20; gx < W; gx += 30) for (var gy = 14; gy < HH; gy += 30) c.fillRect(gx, gy, 1.2, 1.2);
+    [[v.BAR_V, COL.venosa, "VENOUS BLOOD", V.ven], [v.BAR_A, COL.arterial, "ARTERIAL BLOOD", V.art]].forEach(function (b) { var B = b[0];
+      c.save(); c.shadowColor = b[1]; c.shadowBlur = 14; c.strokeStyle = b[1]; c.lineWidth = 2; redondeado(c, B.x, B.y0, B.w, B.y1 - B.y0, 10); c.stroke(); c.restore();
+      c.fillStyle = "rgba(14,10,34,0.9)"; redondeado(c, B.x, B.y0, B.w, B.y1 - B.y0, 10); c.fill();
+      c.save(); c.translate(B.x + B.w / 2 + 6, (B.y0 + B.y1) / 2 + 14); c.rotate(-Math.PI / 2); c.fillStyle = "rgba(237,232,255,0.85)"; c.font = "600 " + (mv ? 21 : 17) + "px Oxanium, sans-serif";
+      c.textAlign = "center"; c.fillText(b[2] + "  ·  " + fmtV(b[3]), 0, 0); c.restore(); });
+    flechasFondo(v, c);
+    c.save(); c.translate(v.ICONOS.porta[0], v.ICONOS.porta[1]); c.rotate(-Math.PI / 2); c.fillStyle = "rgba(165,124,255,0.85)"; c.font = "italic 500 " + (mv ? 17 : 13.5) + "px 'IBM Plex Sans', sans-serif"; c.textAlign = "center"; c.fillText("portal vein", 0, 0); c.restore();
+    var fNom = mv ? 26 : 19, fSub = mv ? 17 : 14;
+    v.CAJAS.forEach(function (b) {
+      c.save(); c.shadowColor = COL.violeta; c.shadowBlur = b.cat ? 8 : 12; c.strokeStyle = b.cat ? "rgba(255,178,62,0.75)" : b.enlace ? "rgba(200,170,255,1)" : "rgba(165,124,255,0.85)"; c.lineWidth = b.cat ? 1.4 : b.enlace ? 2.2 : 1.6;
+      if (b.redondo) { c.beginPath(); c.arc(b.x + b.w / 2, b.y + b.h / 2, b.w / 2, 0, Math.PI * 2); } else redondeado(c, b.x, b.y, b.w, b.h, 8); c.stroke(); c.restore();
+      if (!b.redondo) { c.fillStyle = "#ece6ff"; c.font = "600 " + (b.enlace ? fNom + 1 : fNom) + "px Oxanium, sans-serif"; c.textAlign = "left";
+        c.fillText(b.nombre, b.x + 12, b.y + b.h / 2 + (mv ? 8 : 6)); var ancho = c.measureText(b.nombre).width;
+        c.fillStyle = b.enlace ? "rgba(200,170,255,0.95)" : "rgba(170,160,204,0.8)"; c.font = (b.enlace ? "500 " : "400 ") + fSub + "px 'IBM Plex Mono', monospace";
+        if (b.enlace) { c.textAlign = "right"; c.fillText(b.sub, b.x + b.w - 14, b.y + b.h / 2 + (mv ? 7 : 5)); } else c.fillText(b.sub || "", b.x + 22 + ancho, b.y + b.h / 2 + (mv ? 8 : 6)); }
+      if (b.elim) { var yc = b.y + b.h / 2 + 5, xs0 = BX1 - (mv ? 24 : 28); c.save(); c.shadowColor = COL.elim; c.shadowBlur = 10; c.strokeStyle = COL.elim; c.lineWidth = 1.6; c.beginPath(); c.arc(xs0, yc, 9, 0, Math.PI * 2); c.stroke();
+        c.beginPath(); c.moveTo(xs0 - 6, yc + 6); c.lineTo(xs0 + 6, yc - 6); c.stroke(); c.restore(); c.fillStyle = "rgba(255,92,114,0.95)"; c.font = "500 " + (mv ? 17 : 13) + "px 'IBM Plex Mono', monospace"; c.textAlign = "right";
+        c.fillText(b.ne, BX1 - (mv ? 110 : 124), yc + 4); }
+    });
+    c.fillStyle = "rgba(255,210,150,0.85)"; c.font = "500 " + (mv ? 16 : 12.5) + "px 'IBM Plex Mono', monospace"; c.textAlign = "center";
+    v.ETQ.forEach(function (t) { c.fillText(t[0], t[1], t[2]); });
+    var jx = v.ICONOS.jeringa[0], jy = v.ICONOS.jeringa[1]; c.save(); c.shadowColor = COL.iv; c.shadowBlur = 12; c.strokeStyle = COL.iv; c.lineWidth = 2;
+    c.strokeRect(jx - 7, jy - 8, 14, 22); c.beginPath(); c.moveTo(jx, jy - 8); c.lineTo(jx, jy - 18); c.moveTo(jx - 10, jy + 14); c.lineTo(jx + 10, jy + 14); c.moveTo(jx, jy + 14); c.lineTo(jx, jy + 22); c.stroke(); c.restore();
+    c.fillStyle = "rgba(43,232,255,0.95)"; c.font = "600 " + (mv ? 20 : 14) + "px Oxanium, sans-serif"; c.textAlign = "left"; c.fillText("iv dose", jx + 16, jy + 8);
+    var px = v.ICONOS.comprimido[0], py = v.ICONOS.comprimido[1]; c.save(); c.shadowColor = COL.oral; c.shadowBlur = 12; c.strokeStyle = COL.oral; c.lineWidth = 2; redondeado(c, px - 13, py - 7, 26, 14, 7); c.stroke();
+    c.beginPath(); c.moveTo(px, py - 7); c.lineTo(px, py + 7); c.stroke(); c.restore();
+    c.fillStyle = "rgba(255,178,62,0.95)"; c.font = "600 " + (mv ? 18 : 14) + "px Oxanium, sans-serif"; c.textAlign = "center"; c.fillText(mv ? "oral" : "oral dose", px, py + (mv ? 24 : 26));
+  }
+  function flechasFondo(v, c) {
+    v.ARISTAS.forEach(function (e) { if (e.tipo === "barra") return;
+      var col = e.tipo === "elim" ? "rgba(255,92,114,0.55)" : e.tipo === "dosis" ? "rgba(165,124,255,0.55)" : e.tipo === "portal" ? "rgba(140,110,255,0.5)" : e.tipo === "cerebro" ? "rgba(150,125,230,0.55)" : "rgba(120,100,200,0.42)";
+      c.strokeStyle = col; c.lineWidth = e.tipo === "sangre" ? 1.6 : 1.4; c.lineJoin = "round"; c.beginPath(); c.moveTo(e.pts[0][0], e.pts[0][1]);
+      for (var j = 1; j < e.pts.length; j++) c.lineTo(e.pts[j][0], e.pts[j][1]); c.stroke(); punta(c, e.pts[e.pts.length - 2], e.pts[e.pts.length - 1], col); });
+  }
+
+  // ---- Cerebro ampliado: sangre cerebral, masa cerebral, LCR craneal y espinal, con sus barreras
+  function val(n, u) { var x = PAR[n]; return x === undefined ? "" : " " + cifra(x) + (u ? " " + u : ""); }
+  function construirCerebro(v, mv) {
+    v.ritmo = mv ? 4.2 : 5; v.maxp = mv ? 900 : 1400;
+    var c = mv ? { W: 620, HH: 960, art: [160, 10, 300, 68], BB: [90, 118, 440, 84], BM: [22, 300, 272, 104], LCRc: [326, 300, 272, 104], LCRe: [326, 566, 272, 104], ven: [160, 862, 300, 68] }
+               : { W: 1000, HH: 640, art: [380, 18, 240, 56], BB: [280, 124, 440, 84], BM: [40, 300, 280, 104], LCRc: [360, 300, 280, 104], LCRe: [680, 300, 280, 104], ven: [380, 560, 240, 56] };
+    v.W = c.W; v.HH = c.HH;
+    function caja(id, r, nombre, ext) { v.CAJAS.push({ id: id, x: r[0], y: r[1], w: r[2], h: r[3], nombre: nombre, sub: ext ? "" : fmtV(V[id]), externo: !!ext }); }
+    caja("art", c.art, "Arterial blood", true); caja("BB", c.BB, "Brain blood"); caja("BM", c.BM, "Brain mass"); caja("LCRc", c.LCRc, "Cranial CSF"); caja("LCRe", c.LCRe, "Spinal CSF"); caja("ven", c.ven, "Venous blood", true);
+    var R = {}; v.CAJAS.forEach(function (b) { R[b.id] = b; });
+    var bb = R.BB, bm = R.BM, lc = R.LCRc, le = R.LCRe, ar = R.art, ve = R.ven;
+    function eq(txt, x, y, al) { v.ETQ.push([txt, x, y, al || "left"]); }
+    if (!mv) {
+      arista(v, "art>BB", "art", "BB", [[500, ar.y + ar.h], [500, bb.y]], "sangre"); eq("Q_brain" + val("Q_cerebro", "L/h"), 512, 104);
+      arista(v, "BB>ven", "BB", "ven", [[bb.x, bb.y + 42], [22, bb.y + 42], [22, ve.y + 28], [ve.x, ve.y + 28]], "sangre"); eq("venous return", 34, 158);
+      arista(v, "BB>BM", "BB", "BM", [[bb.x + 30, bb.y + bb.h], [bb.x + 30, 250], [bm.x + 110, 250], [bm.x + 110, bm.y]], "cerebro");
+      arista(v, "BM>BB", "BM", "BB", [[bm.x + 150, bm.y], [bm.x + 150, 264], [bb.x + 70, 264], [bb.x + 70, bb.y + bb.h]], "cerebro"); eq("BBB · PS_B" + val("PS_B", "L/h"), bm.x + 4, 242);
+      arista(v, "BB>LCRc", "BB", "LCRc", [[480, bb.y + bb.h], [480, lc.y]], "cerebro"); arista(v, "LCRc>BB", "LCRc", "BB", [[520, lc.y], [520, bb.y + bb.h]], "cerebro");
+      eq("blood-CSF · PS_C" + val("PS_C", "L/h"), 532, 262);
+      arista(v, "BM>LCRc", "BM", "LCRc", [[bm.x + bm.w, 336], [lc.x, 336]], "cerebro"); arista(v, "LCRc>BM", "LCRc", "BM", [[lc.x, 368], [bm.x + bm.w, 368]], "cerebro");
+      eq("PS_E" + val("PS_E", "L/h") + " + bulk flow Q_bulk" + val("Q_bulk", "L/h"), bm.x, 436);
+      arista(v, "LCRc>LCRe", "LCRc", "LCRe", [[lc.x + lc.w, 336], [le.x, 336]], "cerebro"); arista(v, "LCRe>LCRc", "LCRe", "LCRc", [[le.x, 368], [lc.x + lc.w, 368]], "cerebro");
+      eq("Q_Sin" + val("Q_Sin") + " · Q_Sout" + val("Q_Sout", "L/h"), le.x + le.w, 436, "right");
+      arista(v, "LCRc>ven", "LCRc", "ven", [[470, lc.y + lc.h], [470, ve.y]], "cerebro"); eq("Q_Csink" + val("Q_Csink", "L/h"), 480, 500);
+      arista(v, "LCRe>ven", "LCRe", "ven", [[820, le.y + le.h], [820, ve.y + 28], [ve.x + ve.w, ve.y + 28]], "cerebro"); eq("Q_Ssink" + val("Q_Ssink", "L/h"), 830, 500);
+    } else {
+      arista(v, "art>BB", "art", "BB", [[310, ar.y + ar.h], [310, bb.y]], "sangre"); eq("Q_brain" + val("Q_cerebro", "L/h"), 322, 104);
+      arista(v, "BB>ven", "BB", "ven", [[bb.x, bb.y + 42], [12, bb.y + 42], [12, ve.y + 34], [ve.x, ve.y + 34]], "sangre");
+      arista(v, "BB>BM", "BB", "BM", [[140, bb.y + bb.h], [140, bm.y]], "cerebro"); arista(v, "BM>BB", "BM", "BB", [[180, bm.y], [180, bb.y + bb.h]], "cerebro");
+      eq("BBB · PS_B" + val("PS_B", "L/h"), 192, 236);
+      arista(v, "BB>LCRc", "BB", "LCRc", [[430, bb.y + bb.h], [430, lc.y]], "cerebro"); arista(v, "LCRc>BB", "LCRc", "BB", [[470, lc.y], [470, bb.y + bb.h]], "cerebro");
+      eq("blood-CSF · PS_C" + val("PS_C", "L/h"), 418, 274, "right");
+      arista(v, "BM>LCRc", "BM", "LCRc", [[bm.x + bm.w, 336], [lc.x, 336]], "cerebro"); arista(v, "LCRc>BM", "LCRc", "BM", [[lc.x, 368], [bm.x + bm.w, 368]], "cerebro");
+      eq("PS_E + bulk flow", 158, 436, "center");
+      arista(v, "LCRc>LCRe", "LCRc", "LCRe", [[440, lc.y + lc.h], [440, le.y]], "cerebro"); arista(v, "LCRe>LCRc", "LCRe", "LCRc", [[480, le.y], [480, lc.y + lc.h]], "cerebro");
+      eq("Q_Sin · Q_Sout", 428, 486, "right");
+      arista(v, "LCRc>ven", "LCRc", "ven", [[350, lc.y + lc.h], [350, 530], [260, 530], [260, ve.y]], "cerebro"); eq("Q_Csink", 272, 720);
+      arista(v, "LCRe>ven", "LCRe", "ven", [[500, le.y + le.h], [500, ve.y + 34], [ve.x + ve.w, ve.y + 34]], "cerebro"); eq("Q_Ssink", 512, 780);
+    }
+  }
+  function pintarCerebro(v, c) {
+    var mv = v.modo === "movil", W = v.W, HH = v.HH;
+    c.clearRect(0, 0, W, HH); c.fillStyle = "#030208"; c.fillRect(0, 0, W, HH);
+    c.fillStyle = "rgba(165,124,255,0.06)"; for (var gx = 20; gx < W; gx += 30) for (var gy = 14; gy < HH; gy += 30) c.fillRect(gx, gy, 1.2, 1.2);
+    flechasFondo(v, c);
+    c.fillStyle = "rgba(200,185,255,0.9)";
+    v.ETQ.forEach(function (t) { textoRico(c, t[0], t[1], t[2], mv ? 17 : 15, "500", "'IBM Plex Mono', monospace", t[3]); });
+    v.CAJAS.forEach(function (b) { var col = b.externo ? (b.id === "art" ? COL.arterial : COL.venosa) : COL.violeta;
+      c.save(); c.shadowColor = col; c.shadowBlur = 14; c.strokeStyle = col; c.lineWidth = b.externo ? 2 : 1.8; redondeado(c, b.x, b.y, b.w, b.h, 10); c.stroke(); c.restore();
+      c.fillStyle = "#ece6ff"; c.font = "600 " + (b.externo ? (mv ? 22 : 19) : (mv ? 26 : 22)) + "px Oxanium, sans-serif"; c.textAlign = "left"; c.fillText(b.nombre, b.x + 14, b.y + (b.externo ? (mv ? 28 : 24) : (mv ? 30 : 28)));
+      c.fillStyle = "rgba(170,160,204,0.85)"; c.font = "400 " + (mv ? 16 : 14) + "px 'IBM Plex Mono', monospace"; c.textAlign = "right"; c.fillText(b.sub, b.x + b.w - 12, b.y + (mv ? 28 : 26)); });
+  }
+
+  var VP = Vista("lienzo", construirPBPK, pintarPBPK), VC = Vista("lienzoCerebro", construirCerebro, pintarCerebro), VISTAS = [VP, VC];
+
+  // ------------------------------------------------------------------ las luces
+  var sprites = {};
+  function sprite(col) { var s = document.createElement("canvas"); s.width = s.height = 32; var g = s.getContext("2d"), r = g.createRadialGradient(16, 16, 0, 16, 16, 16);
+    r.addColorStop(0, "rgba(255,255,255,1)"); r.addColorStop(0.22, col); r.addColorStop(0.55, col + "55"); r.addColorStop(1, col + "00"); g.fillStyle = r; g.fillRect(0, 0, 32, 32); return s; }
+  sprites.iv = sprite(COL.iv); sprites.oral = sprite(COL.oral); sprites.elim = sprite(COL.elim);
+  var F0 = 0.02, VELOCIDAD = 270;
+  function destello(tr) { var v = VP, e = v.ARISTAS.filter(function (a) { return a.id === (tr.via === "iv" ? "dosis_iv" : "dosis_oral"); })[0]; if (!e) return;
+    for (var i = 0; i < (tr.via === "oral" ? 26 : 10); i++) v.particulas.push({ e: e, tr: tr.id, s: -i * 0.05, v: VELOCIDAD / e.largo, j: (Math.random() - 0.5) * 5, grande: true });
+    v.destellos.push({ x: tr.via === "iv" ? v.ICONOS.iv[0] : v.ICONOS.oral[0], y: tr.via === "iv" ? v.ICONOS.iv[1] : v.ICONOS.oral[1], t: 0, col: COL[tr.id] }); }
+  function sembrar(v, dt) {
+    v.ARISTAS.forEach(function (e, ie) { TR.forEach(function (tr, it) { if (!tr.activo) return; var F = e.fn(tr); if (!(F > 0)) return;
+      var r = v.ritmo * Math.log(1 + F / F0) / Math.LN10 * (e.tipo === "barra" ? 1.6 : 1); var a = (v.acc[it][ie] || 0) + r * dt;
+      while (a >= 1 && v.particulas.length < v.maxp) { a -= 1; v.particulas.push({ e: e, tr: e.tipo === "elim" ? "elim" : tr.id, s: 0, v: VELOCIDAD / e.largo * (e.tipo === "barra" ? 1.25 : 1), j: (Math.random() - 0.5) * (e.tipo === "barra" ? 22 : 4) }); }
+      v.acc[it][ie] = Math.min(a, 3); }); });
+  }
+  function posicion(e, s) { var d = s * e.largo, L = e.L; for (var j = 1; j < L.length; j++) if (d <= L[j]) { var f = (d - L[j - 1]) / ((L[j] - L[j - 1]) || 1);
+    return [e.pts[j - 1][0] + f * (e.pts[j][0] - e.pts[j - 1][0]), e.pts[j - 1][1] + f * (e.pts[j][1] - e.pts[j - 1][1]), e.pts[j][0] - e.pts[j - 1][0], e.pts[j][1] - e.pts[j - 1][1]]; }
+    var u = e.pts[e.pts.length - 1]; return [u[0], u[1], 1, 0]; }
+
+  // ------------------------------------------------------------------ brillo de cada compartimento
+  function nivel(C, cat) { if (!(C > 0)) return 0; return cat ? Math.min(1, Math.log(1 + C / 1) / Math.log(1 + 1500)) : Math.min(1, Math.log(1 + C / 0.08) / Math.log(1 + 30 / 0.08)); }
+  function concentracion(b, tr) { if (b.agregado) { var a = 0, vv = 0; b.agregado.forEach(function (s) { a += tr.x[I[s]]; vv += V[s]; }); return a / vv; }
+    var x = tr.x[I[b.id]]; if (b.cat) return x; return x / V[b.id]; }
+
+  function dibujar(v, dt) {
+    var cx = v.cx, d = Math.min(window.devicePixelRatio || 1, 2), mv = v.modo === "movil"; cx.setTransform(1, 0, 0, 1, 0, 0); cx.drawImage(v.fondo, 0, 0); cx.setTransform(v.escala * d, 0, 0, v.escala * d, 0, 0);
+    cx.globalCompositeOperation = "lighter";
+    v.CAJAS.forEach(function (b) {
+      TR.forEach(function (tr, it) { if (!tr.activo) return; var n = nivel(concentracion(b, tr), b.cat); if (n <= 0.01) return; var col = it === 0 ? "43,232,255" : "255,178,62";
+        cx.fillStyle = "rgba(" + col + "," + (0.012 + 0.085 * n).toFixed(3) + ")";
+        if (b.redondo) { cx.beginPath(); cx.arc(b.x + b.w / 2, b.y + b.h / 2, b.w / 2 - 1.5, 0, Math.PI * 2); cx.fill(); } else { redondeado(cx, b.x + 1.5, b.y + 1.5, b.w - 3, b.h - 3, 7); cx.fill();
+          if (v !== VC) { cx.fillStyle = "rgba(" + col + ",0.95)"; cx.fillRect(b.x + 10, b.y + b.h - 9 + it * 4, (b.w - 20) * n, 2.6); } } }); });
+    if (v.BAR_V) [[v.BAR_V, "ven"], [v.BAR_A, "art"]].forEach(function (bb) { var B = bb[0]; TR.forEach(function (tr, it) { if (!tr.activo) return; var n = nivel(tr.x[I[bb[1]]] / V[bb[1]], false);
+      var col = it === 0 ? "43,232,255" : "255,178,62"; cx.fillStyle = "rgba(" + col + "," + (0.01 + 0.07 * n).toFixed(3) + ")"; redondeado(cx, B.x + 2, B.y0 + 2, B.w - 4, B.y1 - B.y0 - 4, 9); cx.fill();
+      cx.fillStyle = "rgba(" + col + ",0.95)"; var hh = (B.y1 - B.y0 - 20) * n; cx.fillRect(B.x + 6 + it * 5, B.y1 - 10 - hh, 2.5, hh); }); });
+    if (!reducido) { for (var i = v.particulas.length - 1; i >= 0; i--) { var p = v.particulas[i]; p.s += p.v * dt; if (p.s >= 1) { v.particulas.splice(i, 1); continue; } if (p.s < 0) continue;
+      var q = posicion(p.e, p.s), l = Math.hypot(q[2], q[3]) || 1, nx = -q[3] / l, ny = q[2] / l, t = p.grande ? 20 : (p.e.tipo === "barra" ? 11 : 13);
+      cx.drawImage(sprites[p.tr], q[0] + nx * p.j - t / 2, q[1] + ny * p.j - t / 2, t, t); } }
+    for (i = v.destellos.length - 1; i >= 0; i--) { var f = v.destellos[i]; f.t += dt; if (f.t > 1.1) { v.destellos.splice(i, 1); continue; }
+      cx.strokeStyle = f.col; cx.globalAlpha = Math.max(0, 1 - f.t / 1.1); cx.lineWidth = 2.2; cx.beginPath(); cx.arc(f.x, f.y, 8 + 46 * f.t, 0, Math.PI * 2); cx.stroke(); cx.globalAlpha = 1; }
+    cx.globalCompositeOperation = "source-over";
+    if (v === VC) {                                            // en el cerebro, las cifras en cada caja
+      v.CAJAS.forEach(function (b) { var tam = b.externo ? (mv ? 18 : 15) : (mv ? 20 : 17), y = b.y + b.h - (b.externo ? 11 : 14);
+        TR.forEach(function (tr, it) { if (!tr.activo) return; var C = tr.x[I[b.id]] / V[b.id];
+          cx.fillStyle = it === 0 ? COL.iv : COL.oral; cx.font = "600 " + tam + "px Oxanium, sans-serif"; cx.textAlign = "left";
+          var txt = (it === 0 ? "IV " : "Oral ") + cifra(C) + " mg/L"; if (b.externo) cx.fillText(txt, b.x + 14 + (TR[0].activo ? it : 0) * (b.w / 2 - 4), y);
+          else cx.fillText(txt, b.x + 14, y - (TR[1].activo && it === 0 ? tam + 4 : 0)); }); });
+    }
+    [v.elegido, v.encima].forEach(function (b, n) { if (!b) return; cx.save(); cx.strokeStyle = n === 0 ? "#ffffff" : "rgba(255,255,255,0.45)"; cx.lineWidth = n === 0 ? 2 : 1.2; cx.shadowColor = "#fff"; cx.shadowBlur = n === 0 ? 14 : 6;
+      if (b.redondo) { cx.beginPath(); cx.arc(b.x + b.w / 2, b.y + b.h / 2, b.w / 2 + 3, 0, Math.PI * 2); cx.stroke(); } else { redondeado(cx, b.x - 2, b.y - 2, b.w + 4, b.h + 4, 9); cx.stroke(); } cx.restore(); });
+  }
+
+  // ------------------------------------------------------------------ las graficas
+  var gP = document.getElementById("gPlasma"), gL = document.getElementById("gLCR"), log = false, verSombra = false, ymax = { P: 1, L: 1 };
+  function ejes() { var mp = 0, ml = 0; TR.forEach(function (tr) { if (!tr.activo) return; tr.sombraP.forEach(function (v) { if (v > mp) mp = v; }); tr.sombraL.forEach(function (v) { if (v > ml) ml = v; }); });
+    ymax.P = bonito(mp * 1.12 || 1); ymax.L = bonito(ml * 1.12 || 1); }
+  function bonito(v) { var e = Math.pow(10, Math.floor(Math.log10(v))), m = v / e; var s = [1, 1.2, 1.5, 2, 2.5, 3, 4, 5, 6, 8, 10]; for (var i = 0; i < s.length; i++) if (m <= s[i] + 1e-9) return s[i] * e; return 10 * e; }
+  function grafica(cv, clave) {
+    var r = cv.getBoundingClientRect(); if (!r.width) return; var dpr = Math.min(window.devicePixelRatio || 1, 2), w = r.width, h = Math.max(150, r.height || w * 7.2 / 16);
+    if (cv.width !== Math.round(w * dpr) || cv.height !== Math.round(h * dpr)) { cv.width = Math.round(w * dpr); cv.height = Math.round(h * dpr); }
+    var c = cv.getContext("2d"); c.setTransform(dpr, 0, 0, dpr, 0, 0); c.clearRect(0, 0, w, h); c.fillStyle = "#030208"; c.fillRect(0, 0, w, h);
+    var m = { i: 46, d: 16, a: 14, b: 52 }, pw = w - m.i - m.d, ph = h - m.a - m.b, T = horizonte(), Y = ymax[clave];
+    var ymin = log ? Math.max(0.01, Y / 1e3) : 0;
+    function X(t) { return m.i + pw * t / T; } function Yp(v) { if (log) { v = Math.max(v, ymin); return m.a + ph * (1 - Math.log(v / ymin) / Math.log(Y / ymin)); } return m.a + ph * (1 - v / Y); }
+    c.strokeStyle = "rgba(120,100,200,0.14)"; c.lineWidth = 1; c.fillStyle = "rgba(170,160,204,0.75)"; c.font = "400 10.5px 'IBM Plex Mono', monospace"; c.textAlign = "right";
+    var ticks = []; if (log) { for (var e = Math.ceil(Math.log10(ymin)); e <= Math.floor(Math.log10(Y)); e++) ticks.push(Math.pow(10, e)); } else { var pasoY = bonito(Y / 5); if (Y / pasoY > 6) pasoY *= 2; for (var v = 0; v <= Y + 1e-9; v += pasoY) ticks.push(Math.round(v * 1e6) / 1e6); }
+    ticks.forEach(function (v) { var y = Yp(v); c.beginPath(); c.moveTo(m.i, y); c.lineTo(w - m.d, y); c.stroke(); c.fillText(v >= 1 || v === 0 ? num(v, v % 1 ? 1 : 0) : num(v, 2), m.i - 6, y + 3.5); });
+    c.textAlign = "center"; var dx = pauta.intervalo <= 6 ? pauta.intervalo * 2 : pauta.intervalo; if (T > 60 && dx < 12) dx = 12; if (w < 420 && dx < 16) dx = 16;
+    for (var t = 0; t <= T + 1e-9; t += dx) { var x = X(t); c.strokeStyle = "rgba(120,100,200,0.10)"; c.beginPath(); c.moveTo(x, m.a); c.lineTo(x, m.a + ph); c.stroke(); c.fillText(t + " h", x, h - m.b + 15); }
+    var y0 = h - 9;
+    TR.forEach(function (tr, it) { if (!tr.activo) return; var col = it === 0 ? COL.iv : COL.oral;
+      Object.keys(tr.eventos).forEach(function (kk) { var t = +kk / PH, x = X(t);
+        c.fillStyle = col; c.shadowColor = col; c.shadowBlur = 8; var ancho = tr.via === "iv" ? Math.max(2.5, pw * (pauta.inf_min / 60) / T) : 2.5; c.fillRect(x - (tr.via === "iv" ? 0 : 1.25), y0 - 17 + it * 9, ancho, 6); c.shadowBlur = 0; }); });
+    c.fillStyle = "rgba(111,101,145,0.9)"; c.textAlign = "left"; c.fillText("dose", 4, y0 - 6);
+    var tAhora = k / PH;
+    TR.forEach(function (tr, it) { if (!tr.activo) return; var col = it === 0 ? COL.iv : COL.oral, S = clave === "P" ? tr.serieP : tr.serieL, Sh = clave === "P" ? tr.sombraP : tr.sombraL;
+      if (verSombra) { c.strokeStyle = col + "55"; c.lineWidth = 1; c.setLineDash([3, 4]); c.beginPath(); Sh.forEach(function (v, i) { var x = X(i * 0.1), y = Yp(v); if (i === 0) c.moveTo(x, y); else c.lineTo(x, y); }); c.stroke(); c.setLineDash([]); }
+      for (var pase = 0; pase < 2; pase++) { c.strokeStyle = pase === 0 ? col + "40" : col; c.lineWidth = pase === 0 ? 6 : 1.8; c.lineJoin = "round"; c.beginPath();
+        S.forEach(function (v, i) { var x = X(i * 0.1), y = Yp(v); if (i === 0) c.moveTo(x, y); else c.lineTo(x, y); }); c.stroke(); }
+      var u = S[S.length - 1] || 0, xu = X((S.length - 1) * 0.1), yu = Yp(u); c.fillStyle = "#fff"; c.shadowColor = col; c.shadowBlur = 12; c.beginPath(); c.arc(xu, yu, 3.2, 0, Math.PI * 2); c.fill(); c.shadowBlur = 0;
+      c.fillStyle = col; c.font = "600 12px Oxanium, sans-serif"; c.textAlign = xu > w - 90 ? "right" : "left"; c.fillText(num(u, u < 1 ? 2 : 1) + " mg/L", xu + (xu > w - 90 ? -8 : 8), it === 0 ? yu - 8 : yu + 16); c.font = "400 10.5px 'IBM Plex Mono', monospace"; });
+    c.strokeStyle = "rgba(255,255,255,0.35)"; c.setLineDash([2, 3]); c.beginPath(); c.moveTo(X(tAhora), m.a); c.lineTo(X(tAhora), m.a + ph); c.stroke(); c.setLineDash([]);
+    c.fillStyle = "rgba(111,101,145,0.9)"; c.textAlign = "left"; c.fillText("mg/L", 4, m.a + 8);
+  }
+
+  // ------------------------------------------------------------------ cifras: deck, chips, reparto, compartimento elegido y tabla del cerebro
+  var reparto = document.getElementById("reparto"), cajaInfo = document.getElementById("compartimento");
+  var GRUPOS = [["Blood", ["ven", "art"], "#6a5cff"], ["Tissues", ["adiposo", "hueso", "corazon", "rinon", "musculo", "piel", "resto", "bazo", "pancreas", "intestino", "pulmon"], "#8f63f0"],
+    ["Liver", ["higado"], "#c77dff"], ["Brain", ["BB", "BM"], "#ff7ad9"], ["CSF", ["LCRc", "LCRe"], "#7dffc4"], ["Gut lumen", ["estomago", "id1", "id2", "id3", "id4", "id5", "id6", "id7"], "#ffd27a"],
+    ["Metabolised", ["elim_hepatica"], "#ff5c72"], ["Urine", ["elim_renal"], "#ff9a8a"], ["Not absorbed", ["colon"], "#8a7f5a"]];
+  function hm(t) { var hh = Math.floor(t), mm = Math.round((t - hh) * 60); if (mm === 60) { hh += 1; mm = 0; } return hh + " h " + (mm < 10 ? "0" : "") + mm + " min"; }
+  function proxima(tr) { var ks = Object.keys(tr.eventos).map(Number).filter(function (x) { return x > k; }).sort(function (a, b) { return a - b; }); return ks.length ? (ks[0] - k) / PH : null; }
+  function chips(el, clave) { el.innerHTML = TR.map(function (tr, it) { var c = it === 0 ? "var(--iv)" : "var(--oral)", n = it === 0 ? "IV" : "Oral";
+      if (!tr.activo) return '<div class="chip apagado" style="--c:' + c + '"><span class="n">' + n + "</span> off</div>";
+      var vv = clave === "P" ? Cp(tr.x) : Clcr(tr.x), mx = clave === "P" ? tr.cmaxP : tr.cmaxL, p = Cp(tr.x);
+      return '<div class="chip" style="--c:' + c + '"><span class="n">' + n + "</span> now <b>" + num(vv, vv < 1 ? 2 : 1) + '</b> mg/L<span class="sep">·</span>C<sub>max</sub> <b>' + num(mx, 1) + "</b> mg/L" +
+        (clave === "L" && p > 0.01 ? '<span class="sep">·</span>CSF/plasma <b>' + num(100 * vv / p, 0) + "</b> %" : "") + "</div>"; }).join(""); }
+  function infoCaja(b) { if (!b) return '<span style="font-family:var(--mono);font-size:11.5px">Tap a compartment in the schematic to see its concentration and amount under each treatment.</span>';
+    return "<b>" + b.nombre + "</b>" + (b.cat ? " · gut lumen (amount, not concentration)" : b.agregado ? " · the four compartments together" : " · " + fmtV(V[b.id])) + '<div class="dos">' +
+      TR.map(function (tr, it) { var x = b.agregado ? b.agregado.reduce(function (s, e) { return s + tr.x[I[e]]; }, 0) : tr.x[I[b.id]], C = concentracion(b, tr);
+        return '<span style="color:' + (it === 0 ? COL.iv : COL.oral) + '">' + (it === 0 ? "IV" : "Oral") + " · " + (b.cat ? num(x, x < 10 ? 2 : 0) + " mg" : cifra(C) + " mg/L · " + num(x, x < 10 ? 2 : 0) + " mg") + "</span>"; }).join("") + "</div>"; }
+  function textos() {
+    var t = k / PH; document.getElementById("reloj").textContent = hm(t); document.getElementById("dia").textContent = "day " + (Math.floor(t / 24) + 1);
+    document.getElementById("proximas").innerHTML = TR.map(function (tr, it) { var n = it === 0 ? "IV" : "Oral", col = it === 0 ? COL.iv : COL.oral;
+      if (!tr.activo) return '<span style="color:var(--texto-3)">' + n + " off</span>"; var pr = proxima(tr);
+      return '<span><span style="color:' + col + '">' + n + "</span> " + tr.dadas + (tr.dadas === 1 ? " dose" : " doses") + " · " + (pr === null ? "no more" : "next in " + hm(pr)) + "</span>"; }).join("");
+    chips(document.getElementById("chipsP"), "P"); chips(document.getElementById("chipsL"), "L");
+    reparto.innerHTML = TR.map(function (tr, it) { var c = it === 0 ? "var(--iv)" : "var(--oral)";
+      if (!tr.activo || tr.admin <= 0) return '<div class="fila-r" style="--c:' + c + '"><span class="n">' + (it === 0 ? "IV" : "Oral") + '</span><span style="font-family:var(--mono);font-size:11px;color:var(--texto-3)">no dose yet</span></div>';
+      var tot = tr.admin; return '<div class="fila-r" style="--c:' + c + '"><span class="n">' + (it === 0 ? "IV" : "Oral") + '</span><div class="barra-r">' +
+        GRUPOS.map(function (g) { var a = g[1].reduce(function (s, e) { return s + tr.x[I[e]]; }, 0); return '<i title="' + g[0] + '" style="width:' + (100 * a / tot).toFixed(2) + "%;background:" + g[2] + ";box-shadow:0 0 8px " + g[2] + '55"></i>'; }).join("") + "</div></div>"; }).join("") +
+      '<div class="leyenda-r">' + GRUPOS.map(function (g) { var vv = TR.map(function (tr) { if (!tr.activo || tr.admin <= 0) return "—"; var a = g[1].reduce(function (s, e) { return s + tr.x[I[e]]; }, 0), pc = 100 * a / tr.admin;
+        return pc < 0.1 && pc > 0 ? num(pc, 3) : num(pc, 1); }).join(" / "); return '<span><i style="background:' + g[2] + '"></i>' + g[0] + " " + vv + " %</span>"; }).join("") + "</div>";
+    cajaInfo.innerHTML = infoCaja(VP.elegido);
+    var fu = MOD.fu, fubm = MOD.fu_bm;
+    document.getElementById("tablaCerebro").innerHTML = "<table><thead><tr><th></th><th>Unbound plasma</th><th>Unbound brain mass</th><th>Brain K<sub>p,uu</sub></th><th>Cranial CSF</th><th>Spinal CSF</th><th>CSF/plasma</th></tr></thead><tbody>" +
+      TR.map(function (tr, it) { if (!tr.activo) return ""; var p = Cp(tr.x), pu = fu * p, bu = fubm * tr.x[I.BM] / V.BM, lc = tr.x[I.LCRc] / V.LCRc, le = Clcr(tr.x);
+        return '<tr><td style="color:' + (it === 0 ? COL.iv : COL.oral) + '">' + (it === 0 ? "IV" : "Oral") + "</td><td>" + cifra(pu) + "</td><td>" + cifra(bu) + "</td><td>" + (pu > 1e-3 ? num(bu / pu, 2) : "—") +
+          "</td><td>" + cifra(lc) + "</td><td>" + cifra(le) + "</td><td>" + (p > 1e-3 ? num(100 * le / p, 0) + " %" : "—") + "</td></tr>"; }).join("") +
+      '</tbody></table><div class="aviso" style="margin-top:6px">mg/L · unbound = f<sub>u</sub> × concentration (f<sub>u</sub> plasma ' + num(fu, 3) + ", brain mass " + num(fubm, 3) + ") · " + (VC.elegido ? infoCaja(VC.elegido).replace(/<div class="dos">/, " · ").replace(/<\/div>$/, "") : "tap a compartment in the schematic") + "</div>";
+  }
+  function resumenPauta() { document.getElementById("resumenPauta").textContent = "Regimen · " + pauta.dosis + " mg every " + pauta.intervalo + " h · " + pauta.n + " doses · IV " + (pauta.inf_min <= 1 ? "as a bolus" : "over " + pauta.inf_min + " min"); }
+
+  // ------------------------------------------------------------------ pestanas
+  var ancho = window.matchMedia("(min-width: 1061px)"), pestanas = Array.prototype.slice.call(document.querySelectorAll(".pestanas [role=tab]")), paneles = Array.prototype.slice.call(document.querySelectorAll(".panel"));
+  var actual = "pbpk";
+  function activar(p, foco) {
+    if (ancho.matches && (p === "plasma" || p === "lcr")) p = "pbpk";
+    actual = p; pestanas.forEach(function (b) { var on = b.dataset.p === p; b.setAttribute("aria-selected", String(on)); b.tabIndex = on ? 0 : -1; if (on && foco) b.focus(); });
+    paneles.forEach(function (s) { s.classList.toggle("activa", s.dataset.panel === p); });
+    cadaTexto = 0;
+  }
+  pestanas.forEach(function (b, i) { b.addEventListener("click", function () { activar(b.dataset.p); });
+    b.addEventListener("keydown", function (ev) { if (ev.key !== "ArrowRight" && ev.key !== "ArrowLeft") return; ev.preventDefault();
+      var vis = pestanas.filter(function (x) { return x.offsetParent !== null; }), j = vis.indexOf(b); j = (j + (ev.key === "ArrowRight" ? 1 : -1) + vis.length) % vis.length; activar(vis[j].dataset.p, true); }); });
+  ancho.addEventListener && ancho.addEventListener("change", function () { activar(actual); });
+
+  // ------------------------------------------------------------------ bucle
+  var corriendo = !reducido, velocidad = 3, resto = 0, antes = 0, cadaTexto = 0;
+  function marco(ahora) {
+    var dt = antes ? Math.min(0.05, (ahora - antes) / 1000) : 0; antes = ahora;
+    if (corriendo) { resto += velocidad * PH * dt; var n = Math.floor(resto); resto -= n; var fin = horizonte() * PH; for (var i = 0; i < n && k < fin; i++) paso(true); if (k >= fin) pausar(); }
+    VISTAS.forEach(function (v) { var vis = visible(v.cv);
+      if (vis && !v.visto) { var mo = modoDe(v); if (mo !== v.modo) preparar(v, mo); v.particulas.length = 0; tam(v); }
+      v.visto = vis; if (!vis) return; if (corriendo) sembrar(v, dt); dibujar(v, corriendo ? dt : 0); });
+    cadaTexto -= dt; if (cadaTexto <= 0) { grafica(gP, "P"); grafica(gL, "L"); textos(); cadaTexto = corriendo ? 0.1 : 0.5; }
+    requestAnimationFrame(marco);
+  }
+  var btPlay = document.getElementById("btPlay");
+  function pausar() { corriendo = false; btPlay.textContent = "▶ Resume"; btPlay.classList.remove("on"); btPlay.setAttribute("aria-pressed", "false"); }
+  function seguir() { if (k >= horizonte() * PH) reiniciar(0); corriendo = true; btPlay.textContent = "❚❚ Pause"; btPlay.classList.add("on"); btPlay.setAttribute("aria-pressed", "true"); }
+  btPlay.addEventListener("click", function () { corriendo ? pausar() : seguir(); });
+  document.getElementById("btReinicio").addEventListener("click", function () { reiniciar(0); seguir(); aviso("Back to t = 0"); });
+  Array.prototype.forEach.call(document.querySelectorAll(".vel"), function (b) { b.addEventListener("click", function () { velocidad = +b.dataset.v;
+    Array.prototype.forEach.call(document.querySelectorAll(".vel"), function (o) { o.classList.toggle("on", o === b); }); }); });
+  [["trIV", 0], ["trOR", 1]].forEach(function (c) { var b = document.getElementById(c[0]); b.addEventListener("click", function () { var tr = TR[c[1]]; tr.activo = !tr.activo; b.classList.toggle("on", tr.activo); b.setAttribute("aria-pressed", String(tr.activo));
+    var t = k / PH; reiniciar(t); aviso(tr.activo ? "Switched on: " + (c[1] === 0 ? "IV" : "oral") : "Switched off: " + (c[1] === 0 ? "IV" : "oral")); }); });
+  var fExtra = document.getElementById("fExtra");
+  [["extraIV", 0], ["extraOR", 1]].forEach(function (c) { document.getElementById(c[0]).addEventListener("click", function () { var tr = TR[c[1]]; if (!tr.activo) { aviso("Switch that treatment on first, under “regimen and options”"); return; }
+    var dd = Math.max(50, Math.min(2000, Math.round(+fExtra.value || 1000))); fExtra.value = dd;
+    tr.extras.push({ k: k, dosis: dd }); tr.eventos[k] = (tr.eventos[k] || 0) + dd; sombra(tr); ejes(); aviso(dd + " mg " + (c[1] === 0 ? "IV" : "oral") + " at " + hm(k / PH)); if (!corriendo) seguir(); }); });
+  document.getElementById("btLog").addEventListener("click", function () { log = !log; this.classList.toggle("on", log); this.setAttribute("aria-pressed", String(log)); cadaTexto = 0; });
+  document.getElementById("btSombra").addEventListener("click", function () { verSombra = !verSombra; this.classList.toggle("on", verSombra); this.setAttribute("aria-pressed", String(verSombra)); cadaTexto = 0; });
+  var fN = document.getElementById("fN"); for (var q = 1; q <= 12; q++) { var o = document.createElement("option"); o.value = q; o.textContent = q; if (q === 6) o.selected = true; fN.appendChild(o); }
+  document.getElementById("pauta").addEventListener("submit", function (ev) { ev.preventDefault();
+    var d = Math.max(50, Math.min(2000, +document.getElementById("fDosis").value || 1000)); document.getElementById("fDosis").value = d;
+    pauta = { dosis: d, intervalo: +document.getElementById("fInt").value, n: +fN.value, inf_min: +document.getElementById("fInf").value }; resumenPauta(); reiniciar(0); seguir();
+    aviso("Regimen: " + d + " mg every " + pauta.intervalo + " h, " + pauta.n + " doses"); });
+  function cajaEn(v, px, py) { for (var i = v.CAJAS.length - 1; i >= 0; i--) { var b = v.CAJAS[i]; if (px >= b.x - 3 && px <= b.x + b.w + 3 && py >= b.y - 3 && py <= b.y + b.h + 3) return b; }
+    if (v.BAR_V) { var B = v.BAR_V; if (px >= B.x && px <= B.x + B.w && py >= B.y0 && py <= B.y1) return { id: "ven", nombre: "Venous blood", x: B.x, y: B.y0, w: B.w, h: B.y1 - B.y0 };
+      B = v.BAR_A; if (px >= B.x && px <= B.x + B.w && py >= B.y0 && py <= B.y1) return { id: "art", nombre: "Arterial blood", x: B.x, y: B.y0, w: B.w, h: B.y1 - B.y0 }; }
+    return null; }
+  VISTAS.forEach(function (v) {
+    function punto(ev) { var r = v.cv.getBoundingClientRect(); return [(ev.clientX - r.left) / r.width * v.W, (ev.clientY - r.top) / r.height * v.HH]; }
+    v.cv.addEventListener("click", function (ev) { var p = punto(ev), b = cajaEn(v, p[0], p[1]); if (b && b.enlace) { activar(b.enlace); return; }
+      v.elegido = b && v.elegido && b.id === v.elegido.id ? null : b; cadaTexto = 0; });
+    v.cv.addEventListener("mousemove", function (ev) { var p = punto(ev); v.encima = cajaEn(v, p[0], p[1]); v.cv.style.cursor = v.encima ? "pointer" : "crosshair"; });
+    v.cv.addEventListener("mouseleave", function () { v.encima = null; });
+  });
+  var toastT = 0; function aviso(t) { var e = document.getElementById("toast"); e.textContent = t; e.classList.add("ver"); clearTimeout(toastT); toastT = setTimeout(function () { e.classList.remove("ver"); }, 1800); }
+  window.addEventListener("resize", function () { VISTAS.forEach(function (v) { if (!visible(v.cv)) { v.visto = false; return; } var mo = modoDe(v); if (mo !== v.modo) preparar(v, mo); tam(v); }); cadaTexto = 0; });
+
+  // ------------------------------------------------------------------ arranque
+  VISTAS.forEach(function (v) { preparar(v, "escritorio"); });
+  var cubiertos = {}; VISTAS.forEach(function (v) { v.ARISTAS.forEach(function (e) { if (e.de && e.a) cubiertos[e.de + ">" + e.a] = 1; }); });
+  var sinFlecha = MOD.flujos.filter(function (f) { return !cubiertos[f.de + ">" + f.a] && f.k > 0; }).map(function (f) { return f.de + ">" + f.a; });
+  var prueba = comprobar(), sello = document.getElementById("sello");
+  sello.innerHTML = prueba.error_max < 1e-6 ? "checked on opening: reproduces rxode2 · max. error <b>" + (prueba.error_max * 100).toExponential(1) + " %</b>" :
+    "⚠ does not reproduce rxode2: max. error " + (prueba.error_max * 100).toFixed(3) + " %";
+  if (sinFlecha.length) sello.innerHTML += " · ⚠ flows without an arrow: " + sinFlecha.join(", ");
+  if (location.hash === "#prueba") document.getElementById("salida-prueba").textContent = JSON.stringify({ error_max: prueba.error_max, sin_flecha: sinFlecha,
+    iv_Cp: prueba.iv.Cp.filter(function (v, i) { return i % 4 === 0; }), oral_lcr: prueba.oral.lcr.filter(function (v, i) { return i % 4 === 0; }), n_aristas: VP.ARISTAS.length + VC.ARISTAS.length });
+  var ancla = location.hash.slice(1), inicial = ["pbpk", "cerebro", "plasma", "lcr"].indexOf(ancla) >= 0 ? ancla : "pbpk";   // #cerebro abre esa pestana
+  resumenPauta(); activar(inicial); VISTAS.forEach(function (v) { v.visto = false; }); reiniciar(1.5); if (reducido) pausar();
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(function () { VISTAS.forEach(function (v) { if (visible(v.cv)) tam(v); }); });
+  requestAnimationFrame(marco);
+})();
+</script>
